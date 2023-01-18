@@ -76,7 +76,7 @@ public class AdAccountRechargeRecordServiceImpl implements AdAccountRechargeReco
     @Override
     public void addAdAccountRechargeRecord(String startTime, AccountSystem accountSystem) {
 
-        QueryWrapper<AdAccountRechargeRecord> adAccountRechargeRecordQueryWrapper = new QueryWrapper<>();
+
 
         LocalDate endDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -129,6 +129,7 @@ public class AdAccountRechargeRecordServiceImpl implements AdAccountRechargeReco
                         adAccountRechargeRecord.setAccountSystemIsSell("1");
                     }
                     if (!adAccountRechargeRecordVo.getTradeStatusName().equals("已取消")) {
+                        QueryWrapper<AdAccountRechargeRecord> adAccountRechargeRecordQueryWrapper = new QueryWrapper<>();
                         adAccountRechargeRecordQueryWrapper.eq("tid",adAccountRechargeRecordVo.getTid());
                         AdAccountRechargeRecord accountRechargeRecord = adAccountRechargeRecordMapper.selectOne(adAccountRechargeRecordQueryWrapper);
                         if (accountRechargeRecord == null){
