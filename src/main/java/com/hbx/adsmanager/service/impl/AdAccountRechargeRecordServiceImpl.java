@@ -37,6 +37,7 @@ public class AdAccountRechargeRecordServiceImpl implements AdAccountRechargeReco
     @Autowired
     AccountCookieService accountCookieService;
 
+
     @Override
     public PageBean<AdAccountRechargeRecord> getAdAccountRechargeRecordList(int page, int rows, AdAccountRechargeRecord adAccountRechargeRecord) {
 
@@ -74,7 +75,9 @@ public class AdAccountRechargeRecordServiceImpl implements AdAccountRechargeReco
 
     @Override
     public void addAdAccountRechargeRecord(String startTime, AccountSystem accountSystem) {
-        QueryWrapper<AccountSystem> accountSystemQueryWrapper = new QueryWrapper<>();
+
+        QueryWrapper<AdAccountRechargeRecord> adAccountRechargeRecordQueryWrapper = new QueryWrapper<>();
+
         LocalDate endDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String endDateFormat = endDate.format(formatter);
@@ -126,7 +129,11 @@ public class AdAccountRechargeRecordServiceImpl implements AdAccountRechargeReco
                         adAccountRechargeRecord.setAccountSystemIsSell("1");
                     }
                     if (!adAccountRechargeRecordVo.getTradeStatusName().equals("已取消")) {
-                        adAccountRechargeRecordMapper.insert(adAccountRechargeRecord);
+                        adAccountRechargeRecordQueryWrapper.eq("tid",adAccountRechargeRecordVo.getTid());
+                        AdAccountRechargeRecord accountRechargeRecord = adAccountRechargeRecordMapper.selectOne(adAccountRechargeRecordQueryWrapper);
+                        if (accountRechargeRecord == null){
+                            adAccountRechargeRecordMapper.insert(adAccountRechargeRecord);
+                        }
                     }
                 }
             }
