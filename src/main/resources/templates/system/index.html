@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Facebook广告账户管理</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/easyui/css/default.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/default/easyui.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/icon.css}" />
+    <script type="text/javascript" th:src="@{/easyui/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/easyui/jquery.easyui.min.js}"></script>
+	<script type="text/javascript" th:src='@{/easyui/js/outlook2.js}'> </script>
+    <script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+
+
+             var _menus = {"menus":[
+                     {"menuid":"3","icon":"","menuname":"账户管理",
+                         "menus":[
+                             {"menuid":"31","menuname":"后台列表","icon":"icon-accountSystem","url":"/system/accountSystem"},
+                             {"menuid":"32","menuname":"广告账户列表","icon":"icon-adAccount","url":"/system/adAccount"},
+                             {"menuid":"33","menuname":"充值记录","icon":"icon-accountRechargeRecord","url":"/system/adAccountRechargeRecord"},
+                             {"menuid":"34","menuname":"钱包入账记录","icon":"icon-rechargeRecord","url":"/system/walletRechargeRecord"},
+                             {"menuid":"35","menuname":"cookie列表","icon":"icon-cookie","url":"/system/accountCookie"},
+                         ]
+                     }
+                 ]};
+
+
+
+        /*]]>*/
+    </script>
+
+</head>
+<body class="easyui-layout" style="overflow-y: hidden"  scroll="no">
+
+    <div region="north" split="true" border="false" style="overflow: hidden; height: 30px;
+        background: url(images/layout-browser-hd-bg.gif) #7f99be repeat-x center 50%;
+        line-height: 20px;color: #fff; font-family: Verdana, 微软雅黑,黑体">
+        <span style="float:right; padding-right:20px;" class="head">
+            您好&nbsp;&nbsp;&nbsp;
+            <a th:href="@{/system/logout}" id="loginOut">安全退出</a>
+        </span>
+        <div style="padding-left:10px; font-size: 16px; height: 90px ">Facebook广告账户管理</div>
+    </div>
+    <div region="south" split="true" style="height: 30px; background: #D2E0F2; ">
+    </div>
+    <div region="west" hide="true" split="true" title="导航菜单" style="width:180px;" id="west">
+	<div id="nav" class="easyui-accordion" fit="true" border="false">
+		<!--  导航内容 -->
+	</div>
+	
+    </div>
+    <div id="mainPanle" region="center" style="background: #eee; overflow-y:hidden">
+        <div id="tabs" class="easyui-tabs"  fit="true" border="false" th:include="system/welcome :: welcome">
+
+		</div>
+    </div>
+
+	
+</body>
+</html>

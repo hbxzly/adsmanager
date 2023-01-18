@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>广告账户列表</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/default/easyui.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/icon.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/css/demo.css}">
+	<script type="text/javascript" th:src="@{/easyui/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/jquery.easyui.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/easyui-lang-zh_CN.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/js/validateExtends.js}"></script>
+	<script type="text/javascript" th:src="@{/js/recharge.js}"></script>
+	<script type="text/javascript" th:src="@{/js/datagrid-detailview.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+		$(function() {
+			//datagrid初始化
+			$('#dataList').datagrid({
+				title:'广告账户',
+				iconCls:'icon-more',//图标
+				border: true,
+				collapsible:false,//是否可折叠的
+				fit: true,//自动大小
+				method: "post",
+				url:"/adAccount/getAdAccountList",
+				singleSelect:false,//是否单选
+				pagination:true,//分页控件
+				rownumbers:true,//行号
+				pageSize: 20,
+				columns: [
+						[
+					{field:'chk',checkbox: true,width:50,align:'center'},
+					{field:'adAccountName',title:'账户名称', sortable: true,align:'center'},
+					{field:'adAccountId',title:'账户ID', sortable: true,align:'center'},
+					{field:'balance',title:'余额',align:'center'},
+					{field:'spendAmount',title:'7天消耗',align:'center'},
+					{field:'accountStatus',title:'账户状态',align:'center',
+						formatter: function (value){
+							if(value == 1) {
+								return '正常';
+							}
+							if (value == 2) {
+								return '<span style="color:red">' + '被封' + '</span>';
+							}
+						}
+					},
+					{field:'rechargeStatus',title:'账户是否可充值',align:'center',
+						formatter: function (value){
+							if (value == "false") {
+								return '是';
+							}
+							if (value == "true") {
+								return '<span style="color:red">' + '否' + '</span>';
+							}
+						}
+					},
+					{field:'adAccountSystem',title:'所属后台',align:'center'},
+					{field:'adAccountSystemAlias',title:'后台简称',align:'center'},
+					{field:'isSell',title:'是否卖出',align:'center',
+						formatter: function (value){
+							if (value == "1") {
+								return '<span style="color:red">' + '是' + '</span>';
+							}
+						}
+					},
+					{field:'adAccountSystemStatus',title:'后台状态',align:'center',
+						formatter: function (value){
+							if (value == 1) {
+								return '优秀';
+							} else if (value == 2) {
+								return '良好';
+							} else if (value == 3) {
+								return '限开户';
+							} else if (value == 4) {
+								return '<span style="color:red">' + '限充值' + '</span>';
+							} else if (value == 5) {
+								// return '清零50%';
+								return '<span style="color:red">' + '清零50%' + '</span>';
+							}
+						}
+					},
+					{field:'adAccountSystemBdName',title:'商务',align:'center'},
+					{field:'updateTime',title:'同步时间',align:'center'}
+					]
+				],
+				toolbar: "#toolbar",
+				view: detailview,
+				detailFormatter:function(){
+					return '<div class="ddv" style="padding:5px 0 ; text-align:center"></div>';
+				},
+				onExpandRow: function(index,row){
+					var ddv = $(this).datagrid('getRowDetail',index).find('div.ddv');
+					ddv.panel({
+						border:false,
+						cache:false,
+						href:'/adAccount/findAccountSystemByClientName?clientName='+row.adAccountSystem,
+						onLoad:function(){
+							$('#dataList').datagrid('fixDetailRowHeight',index);
+						}
+					});
+					$('#dataList').datagrid('fixDetailRowHeight',index);
+				}
+			});
+			//设置分页控件
+			var p = $('#dataList').datagrid('getPager');
+			$(p).pagination({
+				// pageSize: 10,//每页显示的记录条数，默认为10
+				pageList: [10,20,30,50,100],//可以设置每页记录条数的列表
+				beforePageText: '第',//页数文本框前显示的汉字
+				afterPageText: '页    共 {pages} 页',
+				displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录',
+			});
+
+			//绑定Bm
+			$("#bindBmDialog").dialog({
+				title: "绑定BM",
+				width: 350,
+				height: 550,
+				iconCls: "icon-edit",
+				modal: true,
+				collapsible: false,
+				minimizable: false,
+				maximizable: false,
+				draggable: true,
+				closed: true,
+				buttons: [
+					{
+						text: '提交',
+						plain: true,
+						iconCls: 'icon-user_add',
+						handler: function () {
+							var selectRows = $("#dataList").datagrid("getSelections");
+							var accountSystem = selectRows[0].adAccountSystem;
+							var adAccountId = "act_"+selectRows[0].adAccountId;
+							var bmId = $("#bindBmId").textbox("getValue")
+							$.ajax({
+								type: "post",
+								url: "/adAccount/bindBm?accountSystem="+accountSystem+"&adAccountId="+adAccountId+"&bmId="+bmId,
+								data: bmId,
+								async: false,
+								cache: false,
+								contentType: false,
+								processData: false,
+								success: function (data) {
+
+									if (data == 0){
+										$.messager.alert("消息提醒", "绑定完成!", "提示",function (){
+											$("#bindBmDialog").dialog("close");
+										});
+										return;
+									}
+									$.messager.alert("消息提醒", "绑定失败!错误代码："+data, "警告");
+								}
+							});
+						}
+					},
+					{
+						text: '重置',
+						plain: true,
+						iconCls: 'icon-reload',
+						handler: function () {
+							$("#bindBmId").textbox('setValue', "");
+
+						}
+					},
+				],
+				onClose: function () {
+					$("#bindBmId").textbox('setValue', "");
+				}
+			});
+
+			//解绑Bm
+			$("#unBindBmDialog").dialog({
+				title: "解绑BM",
+				width: 350,
+				height: 550,
+				iconCls: "icon-edit",
+				modal: true,
+				collapsible: false,
+				minimizable: false,
+				maximizable: false,
+				draggable: true,
+				closed: true,
+				buttons: [
+					{
+						text: '提交',
+						plain: true,
+						iconCls: 'icon-user_add',
+						handler: function () {
+							var selectRows = $("#dataList").datagrid("getSelections");
+							var accountSystem = selectRows[0].adAccountSystem;
+							var adAccountId = "act_"+selectRows[0].adAccountId;
+							var bmId = $("#unBindBmId").textbox("getValue");
+							$.ajax({
+								type: "post",
+								url: "/adAccount/unBindBm?accountSystem="+accountSystem+"&adAccountId="+adAccountId+"&bmId="+bmId,
+								async: false,
+								cache: false,
+								contentType: false,
+								processData: false,
+								success: function (data) {
+
+									if (data == 0){
+										$.messager.alert("消息提醒", "解绑完成!", "提示",function (){
+											$("#unBindBmDialog").dialog("close");
+										});
+										return;
+									}
+									$.messager.alert("消息提醒", "解绑失败!错误代码："+data, "警告");
+								}
+							});
+						}
+					},
+					{
+						text: '重置',
+						plain: true,
+						iconCls: 'icon-reload',
+						handler: function () {
+							$("#unBindBmId").textbox('setValue', "");
+
+						}
+					},
+				],
+				onClose: function () {
+					$("#unBindBmId").textbox('setValue', "");
+				}
+			});
+
+			//绑定BM
+			$("#bindBm").click(function () {
+				var selectRows = $("#dataList").datagrid("getSelections");
+				console.log(selectRows);
+				if (selectRows.length != 1) {
+					$.messager.alert("消息提醒", "请选择一条数据进行操作!", "warning");
+					return;
+				}
+				if (selectRows.length > 1) {
+					$.messager.alert("消息提醒", "只能选择一条数据进行操作!", "warning");
+					return;
+				}
+				var accountSystem = selectRows[0].adAccountSystem;
+				var adAccountId = "act_"+selectRows[0].adAccountId;
+				$("#bindBmDialog").dialog("open");
+				$.ajax({
+					type: "post",
+					url: "/bm/getAccountBmList?accountSystem=" + accountSystem+"&adAccountId="+adAccountId,
+					success: function (data) {
+						$("#accountBmListOne").datagrid({
+							data:data
+						});
+					}
+				});
+			});
+
+			//解绑BM
+			$("#unBindBm").click(function () {
+				var selectRows = $("#dataList").datagrid("getSelections");
+				console.log(selectRows);
+				if (selectRows.length != 1) {
+					$.messager.alert("消息提醒", "请选择一条数据进行操作!", "warning");
+					return;
+				}
+				if (selectRows.length > 1) {
+					$.messager.alert("消息提醒", "只能选择一条数据进行操作!", "warning");
+					return;
+				}
+				var accountSystem = selectRows[0].adAccountSystem;
+				var adAccountId = "act_" + selectRows[0].adAccountId;
+				$("#unBindBmDialog").dialog("open");
+				$.ajax({
+					type: "post",
+					url: "/bm/getAccountBmList?accountSystem=" + accountSystem + "&adAccountId=" + adAccountId,
+					success: function (data) {
+						$("#accountBmListTwo").datagrid({
+							data: data
+						});
+					}
+				});
+			});
+
+			//打开后台
+			$("#loginAccountSystem").click(function(){
+
+				var selectRows = $("#dataList").datagrid("getSelections");
+				if(selectRows.length === 0){
+					$.messager.alert("消息提醒", "请选择一个账户!", "warning");
+					return;
+				}
+				console.log(selectRows);
+				var accountSystems = [];
+				for (var i in selectRows) {
+					accountSystems.push(selectRows[i].adAccountSystem);
+				}
+				accountSystems = [...new Set(accountSystems)];
+				console.log(accountSystems);
+				$.ajax({
+					type: "post",
+					url: "/selenium/loginAccountSystem?accountSystems="+accountSystems,
+					success: function(data){}
+				});
+			});
+			$("#updateAdAccount").click(function (){
+				var selectRows = $("#dataList").datagrid("getSelections");
+				if (selectRows.length != 1) {
+					$.messager.alert("消息提醒", "请选择一条数据进行操作!", "warning");
+					return;
+				}
+				var accountSystem = selectRows[0].adAccountSystem;
+				$.ajax({
+					type: "post",
+					url: "/adAccount/updateAccountSystemAdAccount?clientName="+accountSystem,
+					success: function(data){
+						$("#dataList").datagrid("reload");
+					}
+				});
+			});
+
+			//关闭浏览器
+			$("#closeChrome").click(function (){
+				$.ajax({
+					type: "post",
+					url: "/selenium/closeChrome",
+					success: function(data){}
+				});
+			});
+
+
+
+			//搜索按钮监听事件
+			$("#search-btn").click(function(){
+				$('#dataList').datagrid('load',{
+					id: $('#search_adAccountId').val().trim(),
+					adAccountSystem: $('#search_adAccountSystem').val().trim(),
+					adAccountSystemBdName: $('#search_adAccountSystemBdName').val().trim(),
+					balance: $('#search_balance').val().trim(),
+					spendAmount: $('#search_spendAmount').val().trim(),
+					accountStatus: $('#search_accountStatus').combobox("getValue").trim(),
+					clientStatus: $('#search_clientStatus').combobox("getValue").trim(),
+					note: $('#search_note').val().trim()
+				});
+			});
+
+			//清除
+			$("#clean-btn").click(function (){
+				$("#search_adAccountId").textbox("setValue","");
+				$("#search_adAccountSystem").textbox("setValue","");
+				$("#search_adAccountSystemBdName").textbox("setValue","");
+				$("#search_balance").textbox("setValue","0");
+				$("#search_spendAmount").textbox("setValue","0");
+				$("#search_accountStatus").combobox("setValue","");
+				$("#search_clientStatus").combobox("setValue","");
+				$("#search_note").textbox("setValue","");
+				$("#search-btn").click();
+			});
+
+		});
+
+		$(document).keydown(function (event) {
+			if (event.keyCode === 13) {
+				$("#search-btn").click();
+			}
+		});
+
+
+	</script>
+</head>
+<body>
+<!-- 数据列表 -->
+<table id="dataList">
+
+</table>
+<!-- 工具栏 -->
+<div id="toolbar">
+	<div style="float: left;"><a id="bindBm" href="javascript:;" class="easyui-linkbutton"
+								 data-options="iconCls:'icon-bind',plain:true">绑定BM</a>
+					<a id="unBindBm" href="javascript:;" class="easyui-linkbutton"
+					   data-options="iconCls:'icon-unbind',plain:true">解绑BM</a></div>
+	<div style="float: left;" class="datagrid-btn-separator"></div>
+	<div style="float: left;"><a id="loginAccountSystem" href="javascript:;" class="easyui-linkbutton"
+								 data-options="iconCls:'icon-open',plain:true">打开后台</a>
+							  <a id="closeChrome" href="javascript:;" class="easyui-linkbutton"
+								 data-options="iconCls:'icon-close',plain:true">关闭后台</a></div>
+	<div style="float: left;" class="datagrid-btn-separator"></div>
+	<div style="float: left;"><a id="recharge" href="javascript:;" class="easyui-linkbutton"
+								 data-options="iconCls:'icon-recharge',plain:true">充值</a>
+								<a id="updateAdAccount" href="javascript:;" class="easyui-linkbutton"
+								 data-options="iconCls:'icon-update',plain:true">更新账户</a></div>
+	<div style="float: left;" class="datagrid-btn-separator"></div>
+	<div style="margin-left: 10px;margin-top:4px;">
+		账户ID：<input id="search_adAccountId" class="easyui-textbox" name="search_adAccountId"/>
+		后台：<input id="search_adAccountSystem" class="easyui-textbox" name="search_adAccountSystem"/>
+		商务：<input id="search_adAccountSystemBdName" class="easyui-textbox" name="search_adAccountSystemBdName" style="width:70px;"/>
+		余额大于：<input id="search_balance" class="easyui-textbox" name="search_balance" value="0" style="width:70px;"/>
+		消费金额大于：<input id="search_spendAmount" class="easyui-textbox" name="search_spendAmount" value="0" style="width:70px;"/>
+		账户状态：<select id="search_accountStatus" class="easyui-combobox" name="search_accountStatus" style="width:70px; vertical-align: middle;">
+			<option value="">--</option>
+			<option value="1">正常</option>
+			<option value="2">被封</option>
+		</select>
+		后台状态：<select id="search_clientStatus" class="easyui-combobox"  name="search_clientStatus" style="width:70px; vertical-align: middle;">
+			<option value="">--</option>
+			<option value="1">优秀</option>
+			<option value="2">良好</option>
+			<option value="3">限开户</option>
+			<option value="4">限充值</option>
+			<option value="5">清零50%</option>
+		</select>
+		备注：<input id="search_note" class="easyui-textbox" name="search_note" style="width:70px;"/>
+		<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+		<a id="clean-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-clear',plain:true">清除</a>
+	</div>
+</div>
+<!-- 充值窗口 -->
+<div id="rechargeDialog" style="padding: 10px">
+		<table id="rechargeTable" >
+		</table>
+</div>
+
+<!-- 绑定BM窗口 -->
+<div id="bindBmDialog" style="padding: 10px;">
+	绑定BMID：<input id="bindBmId" class="easyui-textbox" name="bmId"/>
+	<table id="accountBmListOne" >
+		<thead>
+		<tr>
+			<th data-options="field:'id',align:'center'">BM名称</th>
+			<th data-options="field:'name',align:'center'">BMID</th>
+		</tr>
+		</thead>
+	</table>
+</div>
+
+<!-- 绑定BM窗口 -->
+<div id="unBindBmDialog" style="padding: 10px;">
+	绑定BMID：<input id="unBindBmId" class="easyui-textbox" name="bmId"/>
+	<table id="accountBmListTwo" >
+		<thead>
+		<tr>
+			<th data-options="field:'id',align:'center'">BM名称</th>
+			<th data-options="field:'name',align:'center'">BMID</th>
+		</tr>
+		</thead>
+	</table>
+</div>
+
+</body>
+</html>

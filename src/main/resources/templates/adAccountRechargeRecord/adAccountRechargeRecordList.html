@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>账户充值记录</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/default/easyui.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/icon.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/css/demo.css}">
+	<script type="text/javascript" th:src="@{/easyui/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/jquery.easyui.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/easyui-lang-zh_CN.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/js/validateExtends.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+		$(function () {
+			var table;
+
+			//datagrid初始化
+			$('#dataList').datagrid({
+				title: '账户充值记录',
+				iconCls: 'icon-more',//图标
+				border: true,
+				collapsible: false,//是否可折叠的
+				fit: true,//自动大小
+				method: "post",
+				url: "/adAccountRechargeRecord/getAdAccountRechargeRecordList",
+				singleSelect: false,//是否单选
+				pagination: true,//分页控件
+				rownumbers: true,//行号
+				pageSize: 20,
+				toolbar: "#toolbar",
+				onDblClickRow: onDblClickRow
+			});
+			//设置分页控件
+			var p = $('#dataList').datagrid('getPager');
+			$(p).pagination({
+				// pageSize: 10,//每页显示的记录条数，默认为10
+				pageList: [10, 20, 30, 50, 100],//可以设置每页记录条数的列表
+				beforePageText: '第',//页数文本框前显示的汉字
+				afterPageText: '页    共 {pages} 页',
+				displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录',
+			});
+
+			$("#search-btn").click(function () {
+				$('#dataList').datagrid('load', {
+					channelAccountId: $('#search_adAccount').val().trim(),
+					accountSystem: $('#search_accountSystem').val().trim()
+				});
+			});
+
+			$("#clean-btn").click(function () {
+				$('#search_adAccount').textbox("setValue","");
+				$('#search_accountSystem').textbox("setValue","");
+				$("#search-btn").click();
+				document.getElementById("save-btn").style.display="none";
+			});
+
+			var editIndex = undefined;
+			function endEditing(){
+				if (editIndex == undefined){return true}
+				if ($('#dataList').datagrid('validateRow', editIndex)){
+					$('#dataList').datagrid('endEdit', editIndex);
+					editIndex = undefined;
+					return true;
+				} else {
+					return false;
+				}
+			}
+			function onDblClickRow(index){
+				document.getElementById("save-btn").style.display="";
+				if (editIndex != index){
+					if (endEditing()){
+						$('#dataList').datagrid('selectRow', index)
+								.datagrid('beginEdit', index);
+						editIndex = index;
+					} else {
+						$('#dataList').datagrid('selectRow', editIndex);
+					}
+				}
+			}
+
+			//选择时间
+			$("#dateDialog").dialog({
+				title: "选择时间",
+				width: 550,
+				height: 450,
+				iconCls: "icon-edit",
+				modal: true,
+				collapsible: false,
+				minimizable: false,
+				maximizable: false,
+				draggable: true,
+				closed: true,
+				buttons: [
+					{
+						text: '提交',
+						plain: true,
+						iconCls: 'icon-user_add',
+						handler: function () {
+							var startTime = $('#startTime').datebox('getValue');
+							$.ajax({
+								type: "post",
+								url: "/adAccountRechargeRecord/addAdAccountRechargeRecord?startTime="+startTime,
+								async: false,
+								cache: false,
+								contentType: false,
+								processData: false,
+								success: function (data) {
+									$("#dateDialog").dialog("close");
+									$('#dataList').datagrid('reload');
+								}
+							});
+						}
+					}
+				],
+				onClose: function () {
+
+				}
+			});
+			
+			$("#save-btn").click(function () {
+				if (endEditing()) {
+					var $dg = $('#dataList');
+					if ($dg.datagrid('getChanges').length) {
+						// var inserted = $dg.datagrid('getChanges', "inserted"); //获取添加状态的行
+						// var deleted = $dg.datagrid('getChanges', "deleted");//获取删除状态的行
+						var updated = $dg.datagrid('getChanges', "updated");//获取修改状态的行
+						// var effectRow = new Object();
+						var adAccountRechargeRecordList = JSON.stringify(updated);
+						console.log(adAccountRechargeRecordList);
+						$.ajax({
+							type:"POST",
+							url:"/adAccountRechargeRecord/updateAdAccountRechargeRecord",
+							contentType: 'application/json; charset=UTF-8',
+							data:adAccountRechargeRecordList,
+							success:function (){
+								$.messager.alert("提示","更新完成");
+								$dg.datagrid("reload");
+								document.getElementById("save-btn").style.display="none";
+							}
+						});
+					}
+				}
+			});
+
+			$("#update-btn").click(function (){
+				$("#dateDialog").dialog("open");
+			});
+
+
+
+		});
+
+
+
+		$(document).keydown(function (event) {
+			if (event.keyCode === 13) {
+				$("#search-btn").click();
+			}
+		});
+
+		function formatPayMethod(value){
+
+			if (value == "weixin"){
+				return "微信";
+			}
+			if (value == "alipay"){
+				return "支付宝";
+			}
+			if (value == ""){
+				return "钱包";
+			}
+			return value;
+
+		}
+		function formatAccountSystemIsSell(value){
+			if (value=="1"){
+				return "是";
+			}
+			if (value=="0"){
+				return "";
+			}
+			return value;
+		}
+
+
+	</script>
+</head>
+<body>
+<!-- 数据列表 -->
+<table id="dataList" class="easyui-datagrid" title="充值记录">
+	<thead>
+	<tr>
+		<th data-options="field:'ck',checkbox:true"></th>
+		<th data-options="field:'tid',align:'center'">订单</th>
+		<th data-options="field:'accountSystem',align:'center'">后台</th>
+		<th data-options="field:'accountSystemIsSell',align:'center',formatter:formatAccountSystemIsSell">是否卖出</th>
+		<th data-options="field:'channelAccountId',align:'center'">广告账户</th>
+		<th data-options="field:'usdAmount',align:'center'">充值金额</th>
+		<th data-options="field:'exchangeRate',align:'center'">汇率</th>
+		<th data-options="field:'cnyAmount',align:'center'">人民币</th>
+		<th data-options="field:'payMethod',align:'center',formatter:formatPayMethod">支付方式</th>
+		<th data-options="field:'createTime',align:'center'">创建时间</th>
+		<th data-options="field:'payTime',align:'center'">支付时间</th>
+		<th data-options="field:'tradeDetailTypeDesc',align:'center'">充值类型</th>
+		<th data-options="field:'tradeStatusName',align:'center'">状态</th>
+		<th data-options="field:'payCard',align:'center',width:'80px',editor:{
+                                                                    type:'combobox',
+                                                                    options:{
+                                                                        valueField:'id',
+								                                        textField:'name',
+                                                                         data:[{id:'客户充值',name:'客户充值'},
+                                                                               {id:'储蓄7591',name:'储蓄7591'},
+                                                                               {id:'交通9286',name:'交通9286'},
+                                                                               {id:'招商9599',name:'招商9599'}]
+                                                                    }
+                                                          }">支付卡
+		</th>
+		<th data-options="field:'receiver',align:'center',width:'70px',editor:{
+                                                                    type:'combobox',
+                                                                    options:{
+                                                                        valueField:'id',
+								                                        textField:'name',
+                                                                         data:[{id:'卢子月',name:'卢子月'},
+                                                                               {id:'黄颖',name:'黄颖'},
+                                                                               {id:'欧秀英',name:'欧秀英'},
+                                                                               {id:'李金',name:'李金'},
+                                                                               {id:'龙桂芳',name:'龙桂芳'},
+                                                                               {id:'甘丽瑶',name:'甘丽瑶'}]
+                                                                    }
+                                                          }">运营
+		</th>
+		<th data-options="field:'note',align:'center',editor:'text',width:'350px'">备注</th>
+	</tr>
+	</thead>
+</table>
+<!-- 工具栏 -->
+<div id="toolbar">
+
+	<div style="float: left;margin-top:4px;" class="datagrid-btn-separator" >&nbsp;&nbsp;
+		账户：<input id="search_adAccount" class="easyui-textbox" name="search_adAccount" />
+		后台：<input id="search_accountSystem" class="easyui-textbox" name="search_accountSystem" /></div>
+		<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+		<a id="clean-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-clear',plain:true">清除</a>
+		<a id="update-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-update',plain:true">更新</a>
+		<a id="save-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" style="display:none">保存</a>
+
+	</div>
+</div>
+
+<!-- 时间窗口 -->
+<div id="dateDialog" style="padding: 10px">
+	<form id="dateForm" method="post" enctype="multipart/form-data">
+		<table id="dateTable" border=0 style="table-layout:fixed;" cellpadding="6" >
+			<tr>
+			<tr>
+				<td>开始时间:</td>
+				<td><input id="startTime" style=" height: 30px;" class="easyui-datebox" type="text" name="startTime" data-options="required:true" /></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+
+</body>
+</html>

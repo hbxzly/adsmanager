@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>钱包入账记录</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/default/easyui.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/icon.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/css/demo.css}">
+	<script type="text/javascript" th:src="@{/easyui/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/jquery.easyui.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/easyui-lang-zh_CN.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/js/validateExtends.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+		$(function () {
+			var table;
+
+			//datagrid初始化
+			$('#dataList').datagrid({
+				title: '钱包入账记录',
+				iconCls: 'icon-more',//图标
+				border: true,
+				collapsible: false,//是否可折叠的
+				fit: true,//自动大小
+				method: "post",
+				url: "/walletRechargeRecord/getWalletRechargeRecordList",
+				singleSelect: false,//是否单选
+				pagination: true,//分页控件
+				rownumbers: true,//行号
+				pageSize: 20,
+				columns: [
+					[
+						{field: 'chk', checkbox: true, width: 50},
+						{field: 'mobile', title: '后台账号',align:'center',hidden:'true'},
+						{field: 'companyName', title: '后台名称',align:'center'},
+						{field: 'createTime', title: '操作时间',align:'center'},
+						{field: 'usdAmount', title: '金额',align:'center'},
+						{field: 'changeDesc', title: '账户',align:'center'}
+					]
+				],
+				toolbar: "#toolbar",
+
+			});
+
+			//选择时间
+			$("#dateDialog").dialog({
+				title: "选择时间",
+				width: 550,
+				height: 450,
+				iconCls: "icon-edit",
+				modal: true,
+				collapsible: false,
+				minimizable: false,
+				maximizable: false,
+				draggable: true,
+				closed: true,
+				buttons: [
+					{
+						text: '提交',
+						plain: true,
+						iconCls: 'icon-user_add',
+						handler: function () {
+							var startTime = $('#startTime').datebox('getValue');
+							$.ajax({
+								type: "post",
+								url: "/walletRechargeRecord/addRechargeRecordList?startTime="+startTime,
+								async: false,
+								cache: false,
+								contentType: false,
+								processData: false,
+								success: function (data) {
+									$("#dateDialog").dialog("close");
+									$('#dataList').datagrid('reload');
+								}
+							});
+						}
+					}
+				],
+				onClose: function () {
+
+				}
+			});
+
+
+			//设置分页控件
+			var p = $('#dataList').datagrid('getPager');
+			$(p).pagination({
+				// pageSize: 10,//每页显示的记录条数，默认为10
+				pageList: [10, 20, 30, 50, 100],//可以设置每页记录条数的列表
+				beforePageText: '第',//页数文本框前显示的汉字
+				afterPageText: '页    共 {pages} 页',
+				displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录',
+			});
+
+			$("#search-btn").click(function () {
+				$('#dataList').datagrid('load', {
+					changeDesc: $('#search_adAccount').val().trim(),
+					companyName: $('#search_companyName').val().trim()
+				});
+			});
+
+			$("#clean-btn").click(function () {
+				$('#search_adAccount').textbox("setValue","");
+				$('#search_companyName').textbox("setValue","");
+				$("#search-btn").click();
+			});
+
+			$("#update-btn").click(function (){
+				$("#dateDialog").dialog("open");
+			});
+
+		});
+
+		$(document).keydown(function (event) {
+			if (event.keyCode === 13) {
+				$("#search-btn").click();
+			}
+		});
+
+	</script>
+</head>
+<body>
+<!-- 数据列表 -->
+<table id="dataList" cellspacing="0" cellpadding="0">
+
+</table>
+<!-- 工具栏 -->
+<div id="toolbar">
+	<div style="float: left;margin-top:4px;" class="datagrid-btn-separator" >&nbsp;&nbsp;
+		账户：<input id="search_adAccount" class="easyui-textbox" name="search_adAccount" />
+		后台：<input id="search_companyName" class="easyui-textbox" name="search_companyName" /></div>
+		<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+		<a id="clean-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-clear',plain:true">清除</a>
+		<a id="update-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-update',plain:true">更新</a>
+	</div>
+</div>
+
+<!-- 时间窗口 -->
+<div id="dateDialog" style="padding: 10px">
+	<form id="dateForm" method="post" enctype="multipart/form-data">
+		<table id="dateTable" border=0 style="table-layout:fixed;" cellpadding="6" >
+			<tr>
+			<tr>
+				<td>开始时间:</td>
+				<td><input id="startTime" style=" height: 30px;" class="easyui-datebox" type="text" name="startTime" data-options="required:true" /></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+</body>
+</html>

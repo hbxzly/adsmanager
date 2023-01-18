@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>后台列表</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/default/easyui.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/icon.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/css/demo.css}">
+	<script type="text/javascript" th:src="@{/easyui/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/jquery.easyui.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/datagrid-detailview.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/js/validateExtends.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+		$(function() {
+			var table;
+
+			//datagrid初始化
+			$('#dataList').datagrid({
+				title: '广告账户',
+				iconCls: 'icon-more',//图标
+				border: true,
+				collapsible: false,//是否可折叠的
+				fit: true,//自动大小
+				method: "post",
+				url: "/accountSystem/getAccountSystemList",
+				singleSelect: false,//是否单选
+				pagination: true,//分页控件
+				rownumbers: true,//行号
+				pageSize: 20,
+				columns: [
+					[
+						{field: 'chk', checkbox: true, width: 50,align:'center'},
+						{field: 'clientName', title: '后台名称',align:'center'},
+						{field: 'account', title: '账号',align:'center'},
+						{field: 'password', title: '密码',align:'center'},
+						{field: 'email', title: '邮箱',align:'center'},
+						{field: 'clientAlias', title: '简称',align:'center'},
+						{field: 'bdName', title: '商务',align:'center'},
+						{field: 'clientBalance', title: '钱包余额',align:'center'},
+						{field: 'spendAmount', title: '7天消耗',align:'center'},
+						{field: 'totalCount', title: '总账户数',align:'center'},
+						{field: 'activeCount', title: '活跃账户数',align:'center'},
+						{field: 'clientStatus', title: '状态',align:'center',
+							formatter: function (value) {
+								if (value == 1) {
+									return '优秀';
+								} else if (value == 2) {
+									return '良好';
+								} else if (value == 3) {
+									return '限开户';
+								} else if (value == 4) {
+									return '<span style="color:red">' + '限充值' + '</span>';
+								} else if (value == 5) {
+									// return '清零50%';
+									return '<span style="color:red">' + '清零50%' + '</span>';
+								}
+							}
+						},
+						{field: 'agency', title: '代理',align:'center'},
+						{field: 'isSell', title: '是否卖出',align:'center',
+							formatter:function (value){
+								if (value == 1) {
+									return '<span style="color:red">' + '卖出' + '</span>';
+								}
+							}
+						},
+						{field: 'isAble', title: '是否在用',align:'center',
+							formatter:function (value){
+								if (value == 1) {
+									return '在用';
+								}if (value == 2) {
+									return '<span style="color:red">' + '不用' + '</span>';
+								}
+							}
+						},
+						{field: 'note', title: '备注',align:'center'},
+						{field: 'lastSyncTime', title: '同步时间',align:'center'}
+					]
+				],
+				toolbar: "#toolbar",
+				view: detailview,
+				detailFormatter:function(index,row){
+					return '<div style="width:100px padding:2px"><table class="ddv"></table></div>';
+				},
+				onExpandRow: function(index,row){
+					var ddv = $(this).datagrid('getRowDetail',index).find('table.ddv');
+					ddv.datagrid({
+						url:'/accountSystem/queryAdAccountByAccountSystem?clientName='+row.clientName,
+						fitColumns:true,
+						singleSelect:true,
+						rownumbers:true,
+						loadMsg:'',
+						height:'auto',
+						columns: [
+							[
+								{field:'adAccountName',title:'账户名称',width:100},
+								{field:'adAccountId',title:'账户ID',width:100},
+								{field:'balance',title:'余额',width:100},
+								{field:'spendAmount',title:'7天消耗',width:100},
+								{field:'accountStatus',title:'账户状态',width:100,
+									formatter:function (value){
+										if (value == 1) {
+											return '正常';
+										} else if (value == 2) {
+											return '<span style="color:red">' + '被封' + '</span>';
+										}
+									}
+								}
+							]
+						],
+						onResize:function(){
+							$('#accountSystemList').datagrid('fixDetailRowHeight',index);
+						},
+						onLoadSuccess:function(){
+							setTimeout(function(){
+								$('#accountSystemList').datagrid('fixDetailRowHeight',index);
+							},0);
+						}
+					});
+					$('#dataList').datagrid('fixDetailRowHeight',index);
+				}
+			});
+			//设置分页控件
+			var p = $('#dataList').datagrid('getPager');
+			$(p).pagination({
+				// pageSize: 10,//每页显示的记录条数，默认为10
+				pageList: [10,20,30,50,100],//可以设置每页记录条数的列表
+				beforePageText: '第',//页数文本框前显示的汉字
+				afterPageText: '页    共 {pages} 页',
+				displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录',
+			});
+
+			//设置工具类按钮
+			$("#add").click(function(){
+				table = $("#addTable");
+				$("#addDialog").dialog("open");
+			});
+
+			//修改
+			$("#edit").click(function(){
+				table = $("#editTable");
+				var selectRows = $("#dataList").datagrid("getSelections");
+				if(selectRows.length != 1){
+					$.messager.alert("消息提醒", "请选择一条数据进行操作!", "warning");
+				} else{
+					$("#editDialog").dialog("open");
+				}
+			});
+
+
+			//编辑账户信息
+			$("#editDialog").dialog({
+				title: "修改账户信息",
+				width: 850,
+				height: 550,
+				iconCls: "icon-edit",
+				modal: true,
+				collapsible: false,
+				minimizable: false,
+				maximizable: false,
+				draggable: true,
+				closed: true,
+				buttons: [
+					{
+						text: '提交',
+						plain: true,
+						iconCls: 'icon-user_add',
+						handler: function () {
+
+							var formData = new FormData($("#editForm")[0]);
+							console.log(formData);
+							$.ajax({
+								type: "post",
+								url: "/accountSystem/updateAccountSystem",
+								data: formData,
+								async: false,
+								cache: false,
+								contentType: false,
+								processData: false,
+								success: function (data) {
+									if (data === "OK") {
+										//关闭窗口
+										$("#editDialog").dialog("close");
+										//清空原表格数据
+										$("#edit_account").textbox('setValue', "");
+										$("#edit_password").textbox('setValue', "");
+										$("#edit_clientAlias").textbox('setValue', "");
+										$("#edit_isAble").textbox('setValue', "1");
+										$("#edit_note").textbox('setValue', "");
+
+										//重新刷新页面数据
+										$('#dataList').datagrid("reload");
+
+									}
+								}
+							});
+						}
+					},
+					{
+						text: '重置',
+						plain: true,
+						iconCls: 'icon-reload',
+						handler: function () {
+							$("#edit_account").textbox('setValue', "");
+							$("#edit_password").textbox('setValue', "");
+							$("#edit_clientAlias").textbox('setValue', "");
+							$("#edit_isAble").textbox('setValue', "1");
+							$("#edit_note").textbox('setValue', "");
+							$(table).find(".chooseTr").remove();
+
+						}
+					},
+				],
+				onBeforeOpen: function () {
+					var selectRow = $("#dataList").datagrid("getSelected");
+					console.log(selectRow);
+					$("#edit_userId").textbox('setValue', selectRow.userId);
+					$("#edit_clientName").textbox('setValue', selectRow.clientName);
+					$("#edit_account").textbox('setValue', selectRow.account);
+					$("#edit_password").textbox('setValue', selectRow.password);
+					$("#edit_clientAlias").textbox('setValue', selectRow.clientAlias);
+					$("#edit_isAble").combobox('setValue', selectRow.isAble);
+					$("#edit_note").textbox('setValue', selectRow.note);
+				},
+				onClose: function () {
+					$("#edit_clientName").textbox('setValue', "");
+					$("#edit_account").textbox('setValue', "");
+					$("#edit_password").textbox('setValue', "");
+					$("#edit_clientAlias").textbox('setValue', "");
+					$("#edit_note").textbox('setValue', "");
+				}
+			});
+
+			//添加账户
+			$("#addDialog").dialog({
+				title: "添加后台",
+				width: 850,
+				height: 550,
+				iconCls: "icon-edit",
+				modal: true,
+				collapsible: false,
+				minimizable: false,
+				maximizable: false,
+				draggable: true,
+				closed: true,
+				buttons: [
+					{
+						text: '提交',
+						plain: true,
+						iconCls: 'icon-user_add',
+						handler: function () {
+							var formData = new FormData($("#addForm")[0]);
+							console.log()
+							$.ajax({
+								type: "post",
+								url: "/accountSystem/addAccountSystem",
+								data: formData,
+								async: false,
+								cache: false,
+								contentType: false,
+								processData: false,
+								success: function (data) {
+									//关闭窗口
+									$("#addDialog").dialog("close");
+									//清空原表格数据
+									$("#add_clientName").textbox('setValue', "");
+									$("#add_account").textbox('setValue', "");
+									$("#add_password").textbox('setValue', "");
+									$("#add_clientAlias").textbox('setValue', "");
+									$("#add_note").textbox('setValue', "");
+
+									//重新刷新页面数据
+									$('#dataList').datagrid("reload");
+
+								}
+
+							});
+						}
+					},
+					{
+						text: '重置',
+						plain: true,
+						iconCls: 'icon-reload',
+						handler: function () {
+							$("#add_clientName").textbox('setValue', "");
+							$("#add_account").textbox('setValue', "");
+							$("#add_password").textbox('setValue', "");
+							$("#add_clientAlias").textbox('setValue', "");
+							$("#add_note").textbox('setValue', "");
+
+						}
+					},
+				],
+				onBeforeOpen: function () {
+
+				},
+				onClose: function () {
+					$("#edit_clientName").textbox('setValue', "");
+					$("#edit_password").textbox('setValue', "");
+					$("#edit_clientAlias").textbox('setValue', "");
+					$("#edit_note").textbox('setValue', "");
+				}
+			});
+
+			//搜索按钮监听事件
+			$("#search-btn").click(function(){
+				$('#dataList').datagrid('load',{
+					clientName: $('#search_clientName').val().trim(),
+					account: $('#search_account').val().trim(),
+					bdName: $('#search_bdName').val().trim(),
+					clientBalance: $('#search_clientBalance').val().trim(),
+					spendAmount: $('#search_spendAmount').val().trim(),
+					clientStatus: $('#search_clientStatus').combobox("getValue")
+				});
+			});
+
+			//清除按钮监听事件
+			$("#clean-btn").click(function () {
+				$('#search_clientName').textbox('setValue', "");
+				$('#search_account').textbox('setValue', "");
+				$('#search_bdName').textbox('setValue', "");
+				$('#search_clientBalance').textbox('setValue', "0");
+				$('#search_spendAmount').textbox('setValue', "0");
+				$('#search_clientStatus').combobox('setValue', "");
+				$("#search-btn").click();
+			});
+
+			//打开后台
+			$("#loginAccountSystem").click(function(){
+				var selectRows = $("#dataList").datagrid("getSelections");
+
+				if(selectRows.length === 0){
+					$.messager.alert("消息提醒", "请选择一个账户!", "warning");
+					return;
+				}
+				console.log(selectRows);
+				var accountSystems = [];
+				for (var i in selectRows) {
+					accountSystems.push(selectRows[i].clientName);
+				}
+				accountSystems = accountSystems.join(",");
+				console.log(accountSystems);
+				$.ajax({
+					type: "post",
+					url: "/selenium/loginAccountSystem?accountSystems="+accountSystems,
+					success: function(data){}
+				});
+			});
+
+			//更新基础信息
+			$("#updateAccountSystemBasicInfo").click(function () {
+				var selectRows = $("#dataList").datagrid("getSelections");
+				if(selectRows.length === 0){
+					$.messager.alert("消息提醒", "请选择一个账户!", "warning");
+					return;
+				}
+				var accountSystems = [];
+				for (var i in selectRows) {
+					accountSystems.push(selectRows[i].clientName);
+				}
+				accountSystems = accountSystems.join(",");
+				$.ajax({
+					type: "post",
+					url: "/accountSystem/updateAccountSystemBasicInfo?accountSystems="+accountSystems,
+					success: function(data){
+						$("#dataList").datagrid("reload");
+					}
+				});
+			});
+
+			//更新后台状态、钱包、账户数量信息、
+			$("#updateAccountSystemAccountInfo").click(function () {
+				var selectRows = $("#dataList").datagrid("getSelections");
+				if(selectRows.length === 0){
+					$.messager.alert("消息提醒", "请选择一个账户!", "warning");
+					return;
+				}
+				var accountSystems = [];
+				for (var i in selectRows) {
+					accountSystems.push(selectRows[i].clientName);
+				}
+				accountSystems = accountSystems.join(",");
+				$.ajax({
+					type: "post",
+					url: "/accountSystem/updateAccountSystemAccountInfo?accountSystems="+accountSystems,
+					success: function(data){
+						$("#dataList").datagrid("reload");
+					}
+				});
+			});
+
+			//关闭浏览器
+			$("#closeChrome").click(function (){
+				$.ajax({
+					type: "post",
+					url: "/selenium/closeChrome",
+					success: function(data){}
+				});
+			});
+
+			$("#sell").click(function (){
+				var clientName = $("#edit_clientName").textbox("getValue");
+				$.ajax({
+					type: "post",
+					url: "/accountSystem/updateAccountSystemForSell?clientName="+clientName+"&isSell="+"1",
+					success: function(data){
+						$("#editDialog").dialog("close");
+						$("#dataList").datagrid("reload");
+					}
+				});
+			});
+
+			$("#undoSell").click(function (){
+				var clientName = $("#edit_clientName").textbox("getValue");
+				$.ajax({
+					type: "post",
+					url: "/accountSystem/updateAccountSystemForSell?clientName="+clientName+"&isSell="+"0",
+					success: function(data){
+						$("#editDialog").dialog("close");
+						$("#dataList").datagrid("reload");
+					}
+				});
+			});
+
+		});
+
+		$(document).keydown(function (event) {
+			if (event.keyCode === 13) {
+				$("#search-btn").click();
+			}
+
+		});
+
+
+	</script>
+</head>
+<body>
+<!-- 数据列表 -->
+<table id="dataList" cellspacing="0" cellpadding="0">
+
+</table>
+<!-- 工具栏 -->
+<div id="toolbar">
+		<div  style="float: left;"><a id="add" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+							<a id="edit" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">修改</a></div>
+		<div  style="float: left;" class="datagrid-btn-separator"></div>
+	<div style="float: left;"><a id="loginAccountSystem" href="javascript:;" class="easyui-linkbutton"
+					   data-options="iconCls:'icon-open',plain:true">打开后台</a>
+					<a id="closeChrome" href="javascript:;" class="easyui-linkbutton"
+					   data-options="iconCls:'icon-close',plain:true">关闭后台</a>
+					<a id="updateAccountSystemBasicInfo" href="javascript:;" class="easyui-linkbutton"
+					   data-options="iconCls:'icon-basic-update',plain:true">更新基础信息</a>
+					<a id="updateAccountSystemAccountInfo" href="javascript:;" class="easyui-linkbutton"
+					   data-options="iconCls:'icon-update',plain:true">更新账户信息</a></div>
+	<div style="float: left;" class="datagrid-btn-separator"></div>
+		后台名称：<input id="search_clientName" class="easyui-textbox" name="search_clientName" />
+		账号：<input id="search_account" class="easyui-textbox" name="search_account" />
+		商务：<input id="search_bdName" class="easyui-textbox" name="search_bdName" style="width:60px;"/>
+		余额大于：<input id="search_clientBalance" class="easyui-textbox" value="0" name="search_clientBalance"style="width:60px;" />
+		消耗金额大于：<input id="search_spendAmount" class="easyui-textbox" value="0" name="search_spendAmount" style="width:60px;"/>
+		后台状态：<select id="search_clientStatus" class="easyui-combobox"  name="search_clientStatus" style="width:70px; vertical-align: middle;">
+			<option value="">--</option>
+			<option value="1">优秀</option>
+			<option value="2">良好</option>
+			<option value="3">限开户</option>
+			<option value="4">限充值</option>
+			<option value="5">清零50%</option>
+		</select>
+		<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+		<a id="clean-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-clear',plain:true">清除</a>
+	</div>
+</div>
+
+<!-- 添加窗口 -->
+<div id="addDialog" style="padding: 10px;">
+	<form id="addForm" method="post" enctype="multipart/form-data">
+		<table id="addTable" border=0 style="width:800px; table-layout:fixed;" cellpadding="6" >
+			<tr>
+				<td>后台名称:</td>
+				<td colspan="4"><input id="add_clientName" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="clientName" data-options="required:true" /></td>
+			</tr>
+			<tr>
+				<td>账号:</td>
+				<td colspan="4"><input id="add_account" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="account" data-options="required:true" /></td>
+			</tr>
+			<tr>
+				<td>密码:</td>
+				<td colspan="4"><input id="add_password" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="password" data-options="required:true" /></td>
+			</tr>
+			<tr>
+				<td>简称:</td>
+				<td colspan="4"><input id="add_clientAlias" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="clientAlias" data-options="required:true" /></td>
+			</tr>
+			<tr>
+				<td>备注:</td>
+				<td colspan="4"><input id="add_note" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="note" /></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+
+<!-- 修改窗口 -->
+<div id="editDialog" style="padding: 10px">
+	<form id="editForm" method="post" enctype="multipart/form-data">
+		<table id="editTable" border=0 style="width:800px; table-layout:fixed;" cellpadding="6" >
+			<tr>
+				<td>后台名称:</td>
+				<td colspan="4"><input id="edit_clientName" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="clientName" data-options="required:true" /></td>
+			</tr>
+			<tr>
+				<td>账号:</td>
+				<td colspan="4"><input id="edit_account" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="account" data-options="required:true" /></td>
+			</tr>
+			<tr>
+				<td>密码:</td>
+				<td colspan="4"><input id="edit_password" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="password" data-options="required:true" /></td>
+			</tr>
+			<tr>
+				<td>简称:</td>
+				<td colspan="4"><input id="edit_clientAlias" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="clientAlias" data-options="required:true" /></td>
+			</tr>
+			<tr>
+				<td>是否可用:</td>
+				<td><select id="edit_isAble" class="easyui-combobox" data-options="editable: false, panelHeight: 50, width: 60, height: 30" name="isAble"><option value="1">在用</option><option value="2">不在用</option></select></td>
+			</tr>
+			<tr>
+				<td>备注:</td>
+				<td colspan="4"><input id="edit_note" style="width: 200px; height: 30px;" class="easyui-textbox" type="text" name="note" /></td>
+			</tr>
+			<tr>
+				<td><a id="sell" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-redo',plain:true">卖出</a></td>
+				<td>
+					<a id="undoSell" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true">撤销卖出</a>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+</body>
+</html>

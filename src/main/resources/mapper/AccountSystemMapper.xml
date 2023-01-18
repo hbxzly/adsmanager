@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hbx.adsmanager.mapper.AccountSystemMapper" >
+
+
+    <select id="countAccountSystemAdAccount" resultType="com.hbx.adsmanager.domain.AccountSystem">
+        SELECT
+            ad_account_system AS "clientName",
+            COUNT(ad_account_id) AS "totalCount",
+            IFNULL(SUM(CASE WHEN account_status='1' THEN 1 ELSE 0 END ),0) AS "activeCount",
+            IFNULL(SUM(CASE WHEN account_status='2' THEN 1 ELSE 0 END ),0) AS "disableCount"
+        FROM
+            ad_account
+        WHERE ad_account_system = #{clientName}
+    </select>
+
+
+</mapper>
