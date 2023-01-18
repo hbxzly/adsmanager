@@ -17,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -88,26 +86,26 @@ public class SeleniumServiceImpl implements SeleniumService {
         try {
             AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
             loginAccountSystem(system);
-            WebDriverWait webDriverWait = new WebDriverWait(driver, 20,1);
-//            webDriverWait. until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/section/section/section/main/div/div/div[3]/div/div[2]/div/div[1]/div[1]/span/svg")));
-            Thread.sleep(500);
-            driver.get("https://business.sinoclick.com/client/myorder/recharge/ad-account?account="+id+"&channel=1&user="+system.getUserId()+"");
             driver.manage().window().maximize();
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/section/section/section/main/div[2]/div/div[2]/div[2]/button")));
-            WebElement rechargeButton = driver.findElement(By.xpath("/html/body/div[1]/section/section/section/main/div[2]/div/div[2]/div[2]/button"));
+            WebDriverWait webDriverWait = new WebDriverWait(driver, 20,1);
+            webDriverWait. until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div/div/div[3]/div/div[2]/div/div[1]/div[2]/button[2]")));
+//            Thread.sleep(500);
+            driver.get("https://business.sinoclick.com/client/myorder/recharge/ad-account?account="+id+"&channel=1&user="+system.getUserId()+"");
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div[2]/div[2]/button")));
+            WebElement rechargeButton = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div[2]/div[2]/button"));
             WebElement rechargeAmount = driver.findElement(By.id("recharge_amount"));
             rechargeAmount.sendKeys(amount);
             rechargeButton.click();
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/section/section/section/main/div[2]/div/div/div/div/div[2]/div[3]/div/div/div[1]/label[2]/span[2]/img")));
-            WebElement payMethodBt = driver.findElement(By.xpath("/html/body/div[1]/section/section/section/main/div[2]/div/div/div/div/div[2]/div[3]/div/div/div[1]/label[3]/span[2]/img"));
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button")));
+            WebElement payMethodBt = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/div[2]/div[3]/div/div/div[1]/label[2]/span[2]/img"));
             if (payMethod.equals("2")){
                 payMethodBt.click();
-                WebElement goPaymentBt = driver.findElement(By.xpath("/html/body/div[1]/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button"));
+                WebElement goPaymentBt = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button"));
                 goPaymentBt.click();
             }
             if(payMethod.equals("1")){
                 payMethodBt.click();
-                WebElement goPaymentBt = driver.findElement(By.xpath("/html/body/div[1]/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button"));
+                WebElement goPaymentBt = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button"));
                 goPaymentBt.click();
             }
         }catch (Exception e){
