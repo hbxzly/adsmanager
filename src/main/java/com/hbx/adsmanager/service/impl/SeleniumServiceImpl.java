@@ -97,13 +97,14 @@ public class SeleniumServiceImpl implements SeleniumService {
             rechargeAmount.sendKeys(amount);
             rechargeButton.click();
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button")));
-            WebElement payMethodBt = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/div[2]/div[3]/div/div/div[1]/label[2]/span[2]/img"));
             if (payMethod.equals("2")){
+                WebElement payMethodBt = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/div[2]/div[3]/div/div/div[1]/label[2]/span[2]/img"));
                 payMethodBt.click();
                 WebElement goPaymentBt = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button"));
                 goPaymentBt.click();
             }
             if(payMethod.equals("1")){
+                WebElement payMethodBt = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/div[2]/div[3]/div/div/div[1]/label[3]/span[2]/img"));
                 payMethodBt.click();
                 WebElement goPaymentBt = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button"));
                 goPaymentBt.click();
