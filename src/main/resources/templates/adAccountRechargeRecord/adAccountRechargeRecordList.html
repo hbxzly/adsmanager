@@ -101,15 +101,14 @@
 							$.ajax({
 								type: "post",
 								url: "/adAccountRechargeRecord/addAdAccountRechargeRecord?startTime="+startTime,
-								async: false,
 								cache: false,
 								contentType: false,
 								processData: false,
 								success: function (data) {
-									$("#dateDialog").dialog("close");
 									$('#dataList').datagrid('reload');
 								}
 							});
+							$('#dateDialog').dialog('close');
 						}
 					}
 				],

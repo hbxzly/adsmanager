@@ -64,15 +64,14 @@
 							$.ajax({
 								type: "post",
 								url: "/walletRechargeRecord/addRechargeRecordList?startTime="+startTime,
-								async: false,
 								cache: false,
 								contentType: false,
 								processData: false,
 								success: function (data) {
-									$("#dateDialog").dialog("close");
 									$('#dataList').datagrid('reload');
 								}
 							});
+							$("#dateDialog").dialog("close");
 						}
 					}
 				],

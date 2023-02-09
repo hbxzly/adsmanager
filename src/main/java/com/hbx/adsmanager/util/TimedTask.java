@@ -51,16 +51,6 @@ public class TimedTask {
             }
         }
     }
-    @Scheduled(cron = "0 0 13 * * ?")
-    public void onlyUpdateAccountCookie() throws InterruptedException {
-        List<AccountSystem> accountSystemList = accountSystemMapper.selectList(new QueryWrapper<>());
-        for (AccountSystem accountSystem:accountSystemList){
-            if (accountSystem.getIsAble().equals("1")) {
-                String cookie = seleniumService.getAccountSystemCookie(accountSystem);
-                accountCookieService.updateAccountCookie(accountSystem.getAccount(), cookie);
-            }
-        }
-    }
 
     @Scheduled(cron = "0 0 8 * * ?")
     public void updateRechargeRecord(){
