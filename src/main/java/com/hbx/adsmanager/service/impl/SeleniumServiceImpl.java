@@ -148,7 +148,7 @@ public class SeleniumServiceImpl implements SeleniumService {
             //Thread.sleep(1000L);
             WebElement loginButton = driver.findElement(By.xpath("/html/body/lang/div[@id='root']/div[@class='App ']/div/div[@class='passport-wrapper login-wrapper']/div[@class='login-wrapper-right']/div[@class='login-component ']/div[@class='login-box']/form[@class='m-design-form m-design-form-horizontal m-design-form-large login-form']/div[@class='m-design-row m-design-form-item']/div[@class='m-design-col m-design-form-item-control']/div[@class='m-design-form-item-control-input']/div[@class='m-design-form-item-control-input-content']/button[@class='m-design-btn m-design-btn-primary m-design-btn-lg m-design-btn-block']"));
             loginButton.click();
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.className("comInfo_balance_text")));
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div/div/div[2]/div[2]/div[1]/div[1]")));
             Set<Cookie> cookies=driver.manage().getCookies();
             driver.close();
             driver.quit();
