@@ -88,7 +88,7 @@ public class SeleniumServiceImpl implements SeleniumService {
             loginAccountSystem(system);
             driver.manage().window().maximize();
             WebDriverWait webDriverWait = new WebDriverWait(driver, 20,1);
-            webDriverWait. until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div/div/div[3]/div/div[2]/div/div[1]/div[2]/button[2]")));
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div/div/div[2]/div[2]/div[1]/div[1]")));
 //            Thread.sleep(500);
             driver.get("https://business.sinoclick.com/client/myorder/recharge/ad-account?account="+id+"&channel=1&user="+system.getUserId()+"");
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div[2]/div[2]/button")));
