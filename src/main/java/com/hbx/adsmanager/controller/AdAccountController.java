@@ -64,6 +64,7 @@ public class AdAccountController {
     @ResponseBody
     public void updateAccountSystemAdAccount(String clientName){
         accountSystemService.updateAccountSystemAccountInfo(clientName);
+        adAccountService.updateAdAccountSpendAmount(clientName);
     }
 
 
