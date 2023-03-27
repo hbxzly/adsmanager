@@ -91,9 +91,10 @@ public class SeleniumServiceImpl implements SeleniumService {
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div/div/div[2]/div[2]/div[1]/div[1]")));
 //            Thread.sleep(500);
             driver.get("https://business.sinoclick.com/client/myorder/recharge/ad-account?account="+id+"&channel=1&user="+system.getUserId()+"");
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div[2]/div[2]/button")));
-            WebElement rechargeButton = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div[2]/div[2]/button"));
-            WebElement rechargeAmount = driver.findElement(By.id("recharge_amount"));
+            By accountInput = By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div[2]/div[2]/div/div/div/form/div[2]/div[2]/div/div/div/div/span[2]/div/div[1]/div[1]");
+            webDriverWait.until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElementValue(accountInput, "")));
+            WebElement rechargeButton = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div[2]/div[2]/div/div/div/form/div[4]/div/div/div/button"));
+            WebElement rechargeAmount = driver.findElement(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div[2]/div[2]/div/div/div/form/div[3]/div[2]/div/div/div[1]/div/div/input"));
             rechargeAmount.sendKeys(amount);
             rechargeButton.click();
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div/ul/li/span/button")));
