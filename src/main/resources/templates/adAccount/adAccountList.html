@@ -300,6 +300,7 @@
 					success: function(data){}
 				});
 			});
+			/*更新账户信息*/
 			$("#updateAdAccount").click(function (){
 				var selectRows = $("#dataList").datagrid("getSelections");
 				if (selectRows.length != 1) {
@@ -313,6 +314,26 @@
 					success: function(data){
 						$("#dataList").datagrid("reload");
 					}
+				});
+			});
+			/*更新对应后台cookie*/
+			$("#updateAccountSystemCookie").click(function () {
+				var selectRows = $("#dataList").datagrid("getSelections");
+				if(selectRows.length === 0){
+					$.messager.alert("消息提醒", "请选择一个账户!", "warning");
+					return;
+				}
+				console.log(selectRows);
+				var accountSystems = [];
+				for (var i in selectRows) {
+					accountSystems.push(selectRows[i].adAccountSystem);
+				}
+				accountSystems = [...new Set(accountSystems)];
+				console.log(accountSystems);
+				$.ajax({
+					type: "post",
+					url: "/accountCookie/updateAccountCookieByClientName?clientNames="+accountSystems,
+					success: function(data){}
 				});
 			});
 
@@ -409,6 +430,7 @@
 		备注：<input id="search_note" class="easyui-textbox" name="search_note" style="width:70px;"/>
 		<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
 		<a id="clean-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-clear',plain:true">清除</a>
+		<a id="updateAccountSystemCookie" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-update',plain:true">更新后台cooke</a>
 	</div>
 </div>
 <!-- 充值窗口 -->

@@ -1,6 +1,7 @@
 package com.hbx.adsmanager.controller;
 
 import com.hbx.adsmanager.domain.AccountCookie;
+import com.hbx.adsmanager.domain.AccountSystem;
 import com.hbx.adsmanager.service.AccountCookieService;
 import com.hbx.adsmanager.service.AccountSystemService;
 import com.hbx.adsmanager.service.SeleniumService;
@@ -46,6 +47,18 @@ public class AccountCookieController {
         for (String account:accounts){
             String cookie = seleniumService.getAccountSystemCookie(accountSystemService.queryAccountSystemByAccount(account));
             accountCookieService.updateAccountCookie(account,cookie);
+        }
+
+    }
+
+    @RequestMapping("updateAccountCookieByClientName")
+    @ResponseBody
+    public void updateAccountCookieByClientName(String[] clientNames) throws InterruptedException {
+
+        for (String clientName:clientNames){
+            AccountSystem accountSystem = accountSystemService.queryAccountSystemByClientName(clientName);
+            String cookie = seleniumService.getAccountSystemCookie(accountSystem);
+            accountCookieService.updateAccountCookie(accountSystem.getAccount(),cookie);
         }
 
     }
