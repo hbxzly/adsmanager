@@ -63,6 +63,7 @@
 					type: "post",
 					url: "/accountCookie/updateAccountCookie?accounts="+accounts,
 					success: function(data){
+						$.messager.alert("消息提醒", "更新cookie成功", "success");
 						$("#dataList").datagrid("reload");
 					}
 				});

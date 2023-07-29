@@ -31,8 +31,15 @@
                 <if test="adAccount.adAccountSystemBdName != '' and adAccount.adAccountSystemBdName !=null">
                     and ad_account_system_bd_name like "%"#{adAccount.adAccountSystemBdName}"%"
                 </if>
-                <if test="adAccount.adAccountSystem != '' and adAccount.adAccountSystem !=null">
-                    and ad_account_system like "%"#{adAccount.adAccountSystem}"%" or ad_account_system_alias like "%"#{adAccount.adAccountSystem}"%"
+                <if test="adAccount.adAccountSystem != '' and adAccount.adAccountSystem != null">
+                    <choose>
+                        <when test="adAccount.adAccountSystem.toString().indexOf('-') != -1">
+                            and ad_account_system_alias like concat('%', #{adAccount.adAccountSystem}, '%')
+                        </when>
+                        <otherwise>
+                            and ad_account_system like concat('%', #{adAccount.adAccountSystem}, '%')
+                        </otherwise>
+                    </choose>
                 </if>
                 <if test="adAccount.accountStatus != '' and adAccount.accountStatus !=null">
                     and account_status = #{adAccount.accountStatus}
@@ -66,9 +73,17 @@
             <if test="adAccountSystemBdName != '' and adAccountSystemBdName !=null">
                 and ad_account_system_bd_name like "%"#{adAccountSystemBdName}"%"
             </if>
-            <if test="adAccountSystem != '' and adAccountSystem !=null">
-                and ad_account_system like "%"#{adAccountSystem}"%" or ad_account_system_alias like "%"#{adAccountSystem}"%"
+            <if test="adAccountSystem != '' and adAccountSystem != null">
+                 <choose>
+                     <when test="adAccountSystem.contains('-')">
+                        and ad_account_system_alias like concat('%', #{adAccountSystem}, '%')
+                </when>
+                <otherwise>
+                    and ad_account_system like concat('%', #{adAccountSystem}, '%')
+                </otherwise>
+                 </choose>
             </if>
+
             <if test="accountStatus != '' and accountStatus !=null">
                 and account_status = #{accountStatus}
             </if>
@@ -101,8 +116,15 @@
             <if test="adAccount.adAccountSystemBdName != '' and adAccount.adAccountSystemBdName !=null">
                 and ad_account_system_bd_name like "%"#{adAccount.adAccountSystemBdName}"%"
             </if>
-            <if test="adAccount.adAccountSystem != '' and adAccount.adAccountSystem !=null">
-                and ad_account_system like "%"#{adAccount.adAccountSystem}"%" or ad_account_system_alias like "%"#{adAccount.adAccountSystem}"%"
+            <if test="adAccount.adAccountSystem != '' and adAccount.adAccountSystem != null">
+                <choose>
+                    <when test="adAccount.adAccountSystem.toString().indexOf('-') != -1">
+                        and ad_account_system_alias like concat('%', #{adAccount.adAccountSystem}, '%')
+                    </when>
+                    <otherwise>
+                        and ad_account_system like concat('%', #{adAccount.adAccountSystem}, '%')
+                    </otherwise>
+                </choose>
             </if>
             <if test="adAccount.accountStatus != '' and adAccount.accountStatus !=null">
                 and account_status = #{adAccount.accountStatus}
@@ -131,8 +153,15 @@
             <if test="adAccountSystemBdName != '' and adAccountSystemBdName !=null">
                 and ad_account_system_bd_name like "%"#{adAccountSystemBdName}"%"
             </if>
-            <if test="adAccountSystem != '' and adAccountSystem !=null">
-                and ad_account_system like "%"#{adAccountSystem}"%" or ad_account_system_alias like "%"#{adAccountSystem}"%"
+            <if test="adAccountSystem != '' and adAccountSystem != null">
+                <choose>
+                    <when test="adAccountSystem.contains('-')">
+                        and ad_account_system_alias like concat('%', #{adAccountSystem}, '%')
+                    </when>
+                    <otherwise>
+                        and ad_account_system like concat('%', #{adAccountSystem}, '%')
+                    </otherwise>
+                </choose>
             </if>
             <if test="accountStatus != '' and accountStatus !=null">
                 and account_status = #{accountStatus}

@@ -2,7 +2,6 @@ package com.hbx.adsmanager.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class SystemController {
@@ -41,6 +40,12 @@ public class SystemController {
     @GetMapping("/system/adAccountRechargeRecord")
     public String adAccountRechargeRecordList(){
         return "adAccountRechargeRecord/adAccountRechargeRecordList";
+
+    }
+
+    @GetMapping("/system/rechargeQRCode")
+    public String QRCodeList(){
+        return "rechargeQRCode/rechargeQRCodeList";
     }
 
 

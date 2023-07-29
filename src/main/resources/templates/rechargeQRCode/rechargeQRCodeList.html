@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>cookie列表</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/default/easyui.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/icon.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/easyui/css/demo.css}">
+	<script type="text/javascript" th:src="@{/easyui/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/jquery.easyui.min.js}"></script>
+	<script type="text/javascript" th:src="@{/easyui/js/validateExtends.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+		$(function () {
+			var table;
+
+			//datagrid初始化
+			$('#dataList').datagrid({
+				title: '充值码列表',
+				iconCls: 'icon-more',//图标
+				border: true,
+				collapsible: false,//是否可折叠的
+				fit: true,//自动大小
+				method: "post",
+				url: "/rechargeQRCode/getRechargeQRCodeList",
+				singleSelect: false,//是否单选
+				pagination: true,//分页控件
+				rownumbers: true,//行号
+				pageSize: 20,
+				columns: [
+					[
+						{field: 'chk', checkbox: true, width: 50},
+						{field: 'adAccountId', title: '广告账户', align: 'center'},
+						{field: 'adAccountSystem', title: '账户后台', align: 'center'},
+						{field: 'tradeTid', title: '订单编号', align: 'center'},
+						{field: 'payMethod', title: '支付方式', align: 'center'},
+						{field: 'rechargeUSD', title: '充值美金', align: 'center'},
+						{field: 'rechargeCNY', title: '充值人民币', align: 'center'},
+						{field: 'qrCode', title: '二维码', align: 'center',formatter: function(value, row, index) {
+								return '<a href="#" onclick="openQRCode(\'' + value + '\')">查看二维码</a>'}},
+						{field: 'screenshotName', title: '截图', align: 'center', formatter: function(value, row, index) {
+								return '<a href="#" onclick="openScreenshot(\'' + value + '\')">查看图片</a>';
+							}},
+						{field: 'rechargeStatus', title: '充值状态', align: 'center',formatter: function (value){
+								if (value == '0'){
+									return "未充值"
+								}
+								if (value == '1'){
+									return "已充值"
+								}
+							}},
+						{field: 'check', title: '检查充值', align: 'center', formatter: function(value, row, index) {
+								return '<button onclick="checkStatus(\'' + row.tradeTid + '\')">检查充值</button>';
+							}},
+						{field: 'createTime', title: '生成时间', align: 'center'}
+					]
+				],
+				toolbar: "#toolbar",
+
+			});
+			//设置分页控件
+			var p = $('#dataList').datagrid('getPager');
+			$(p).pagination({
+				// pageSize: 10,//每页显示的记录条数，默认为10
+				pageList: [10, 20, 30, 50, 100],//可以设置每页记录条数的列表
+				beforePageText: '第',//页数文本框前显示的汉字
+				afterPageText: '页    共 {pages} 页',
+				displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录',
+			});
+
+
+			$("#update").click(function () {
+				$.ajax({
+					type: "post",
+					url: "/rechargeQRCode/getRechargeQRCodeList",
+					success: function(data){
+						$("#dataList").datagrid("reload");
+					}
+				});
+			});
+
+
+		});
+
+		var isQRCodeOpen = false; // 标志位，记录二维码是否已经打开
+		var isScreenshotOpen = false; // 标志位，记录截图是否已经打开
+
+		function checkStatus(value){
+			$.ajax({
+				type:"post",
+				url:"/rechargeQRCode/updateRechargeStatus",
+				data:{tradeTid:value},
+				success:function () {
+					$("#dataList").datagrid("reload");
+				}
+			})
+		}
+
+		function openQRCode(value) {
+
+			if (!isQRCodeOpen){
+				isQRCodeOpen = true;
+				var imageHtml = '<img src="data:image/png;base64,' + value + '"  style="max-width: 100%; max-height: 100%;">';
+
+				$.messager.show({
+					title: '二维码',
+					msg: imageHtml,
+					width: 300,
+					height: 300,
+					showType: 'slide',
+					timeout: 0,
+					style: {
+						right: '',
+						bottom: ''
+					},
+					onClose: function () {
+						isQRCodeOpen = false; // 关闭二维码时设置标志位为false，表示可以继续打开
+					}
+				});
+			}
+
+		}
+
+		function openScreenshot(fileName) {
+
+			if (!isQRCodeOpen) {
+
+				var imageUrl = '/screenshot/' + fileName;  // 图片的相对路径，根据您的目录结构进行调整
+				var imageHtml = '<img src="' + imageUrl + '" style="max-width: 100%; max-height: 100%;">';
+
+				$.messager.show({
+					title: '截图',
+					msg: imageHtml,
+					width: 800,
+					height: 400,
+					showType: 'slide',
+					timeout: 0,
+					style: {
+						right: '',
+						bottom: ''
+					},
+					onClose: function () {
+						isQRCodeOpen = false; // 关闭二维码时设置标志位为false，表示可以继续打开
+					}
+				});
+			}
+
+		}
+
+
+
+		$(document).keydown(function (event) {
+			if (event.keyCode === 13) {
+				$("#search-btn").click();
+			}
+		});
+
+	</script>
+</head>
+<body>
+<!-- 数据列表 -->
+<table id="dataList" cellspacing="0" cellpadding="0">
+
+</table>
+<!-- 工具栏 -->
+<div id="toolbar">
+
+	<div style="float: left;margin-top:4px;" class="datagrid-btn-separator" >&nbsp;&nbsp;
+		<a id="update" href="javascript:;" class="easyui-linkbutton"
+		   data-options="iconCls:'icon-update',plain:true">更新</a>
+		广告账号：<input id="search_accountCookie" class="easyui-textbox" name="search_accountCookie" /></div>
+	<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+</div>
+</div>
+
+
+
+</body>
+</html>

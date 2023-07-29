@@ -40,4 +40,7 @@ public class SinoClickRequestUrl {
 
         public static final String GET_ACCOUNT_BM_LIST_POST = "https://rapi.sinoclick.com/adAccounts/operation/facebook/getAccountBmList";
 
+        /**检查订单*/
+        public static final String QUERY_PAY_RESULT = "https://rapi.sinoclick.com/merchants/payment/queryPayResult";
+
 }

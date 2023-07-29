@@ -10,11 +10,17 @@ public interface SeleniumService {
 
     void loginAccountSystem(AccountSystem accountSystem);
 
+    void loginAccountSystemHeadLess(AccountSystem accountSystem);
+
     void closeChrome();
 
     void adAccountRecharge(String accountSystem, String id, String payment, String amount);
 
+    void adAccountRechargeScreenshot(String accountSystem, String id, String payment, String amount);
+
     String getAccountSystemCookie(AccountSystem accountSystem);
+
+
 
 
 

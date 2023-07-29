@@ -80,7 +80,7 @@
 			}
 
 			//选择时间
-			$("#dateDialog").dialog({
+			$("#updateDialog").dialog({
 				title: "选择时间",
 				width: 550,
 				height: 450,
@@ -98,17 +98,19 @@
 						iconCls: 'icon-user_add',
 						handler: function () {
 							var startTime = $('#startTime').datebox('getValue');
+							var accountSystem = $('#accountSystem').datebox('getValue');
 							$.ajax({
 								type: "post",
-								url: "/adAccountRechargeRecord/addAdAccountRechargeRecord?startTime="+startTime,
+								url: "/adAccountRechargeRecord/addAdAccountRechargeRecord?startTime="+startTime+"&accountSystem"+accountSystem,
 								cache: false,
 								contentType: false,
 								processData: false,
 								success: function (data) {
+									$.messager.alert("提示","更新充值成功","success")
 									$('#dataList').datagrid('reload');
 								}
 							});
-							$('#dateDialog').dialog('close');
+							$('#updateDialog').dialog('close');
 						}
 					}
 				],
@@ -116,7 +118,7 @@
 
 				}
 			});
-			
+
 			$("#save-btn").click(function () {
 				if (endEditing()) {
 					var $dg = $('#dataList');
@@ -133,7 +135,7 @@
 							contentType: 'application/json; charset=UTF-8',
 							data:adAccountRechargeRecordList,
 							success:function (){
-								$.messager.alert("提示","更新完成");
+								$.messager.alert("提示","更新完成","success");
 								$dg.datagrid("reload");
 								document.getElementById("save-btn").style.display="none";
 							}
@@ -143,7 +145,7 @@
 			});
 
 			$("#update-btn").click(function (){
-				$("#dateDialog").dialog("open");
+				$("#updateDialog").dialog("open");
 			});
 
 
@@ -248,10 +250,14 @@
 </div>
 
 <!-- 时间窗口 -->
-<div id="dateDialog" style="padding: 10px">
+<div id="updateDialog" style="padding: 10px">
 	<form id="dateForm" method="post" enctype="multipart/form-data">
 		<table id="dateTable" border=0 style="table-layout:fixed;" cellpadding="6" >
 			<tr>
+				<td>后台:</td>
+				<td><input id="accountSystem" style=" height: 30px;" class="easyui-textbox" type="text" name="accountSystem" data-options="required:true" /></td>
+			</tr>
+
 			<tr>
 				<td>开始时间:</td>
 				<td><input id="startTime" style=" height: 30px;" class="easyui-datebox" type="text" name="startTime" data-options="required:true" /></td>
@@ -259,7 +265,5 @@
 		</table>
 	</form>
 </div>
-
-
 </body>
 </html>

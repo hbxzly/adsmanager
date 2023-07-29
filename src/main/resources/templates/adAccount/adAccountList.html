@@ -34,7 +34,7 @@
 					{field:'adAccountName',title:'账户名称', sortable: true,align:'center'},
 					{field:'adAccountId',title:'账户ID', sortable: true,align:'center'},
 					{field:'balance',title:'余额',align:'center'},
-					{field:'spendAmount',title:'7天消耗',align:'center'},
+					{field:'spendAmount',title:'30天消耗',align:'center'},
 					{field:'accountStatus',title:'账户状态',align:'center',
 						formatter: function (value){
 							if(value == 1) {
@@ -293,7 +293,7 @@
 					accountSystems.push(selectRows[i].adAccountSystem);
 				}
 				accountSystems = [...new Set(accountSystems)];
-				console.log(accountSystems);
+				// console.log(accountSystems);
 				$.ajax({
 					type: "post",
 					url: "/selenium/loginAccountSystem?accountSystems="+accountSystems,
@@ -303,15 +303,16 @@
 			/*更新账户信息*/
 			$("#updateAdAccount").click(function (){
 				var selectRows = $("#dataList").datagrid("getSelections");
-				if (selectRows.length != 1) {
-					$.messager.alert("消息提醒", "请选择一条数据进行操作!", "warning");
-					return;
+				var accountSystems = [];
+				for (var i in selectRows){
+					accountSystems.push(selectRows[i].adAccountSystem)
 				}
-				var accountSystem = selectRows[0].adAccountSystem;
+				accountSystems = [...new Set(accountSystems)];
 				$.ajax({
 					type: "post",
-					url: "/adAccount/updateAccountSystemAdAccount?clientName="+accountSystem,
+					url: "/adAccount/updateAccountSystemAdAccount?clientName="+accountSystems,
 					success: function(data){
+						$.messager.alert("消息提醒", "更新信息成功", "success");
 						$("#dataList").datagrid("reload");
 					}
 				});
@@ -333,7 +334,9 @@
 				$.ajax({
 					type: "post",
 					url: "/accountCookie/updateAccountCookieByClientName?clientNames="+accountSystems,
-					success: function(data){}
+					success: function(data){
+						$.messager.alert("消息提醒", "更新对应cookie成功", "success");
+					}
 				});
 			});
 
@@ -430,7 +433,7 @@
 		备注：<input id="search_note" class="easyui-textbox" name="search_note" style="width:70px;"/>
 		<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
 		<a id="clean-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-clear',plain:true">清除</a>
-		<a id="updateAccountSystemCookie" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-update',plain:true">更新后台cooke</a>
+		<a id="updateAccountSystemCookie" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-update',plain:true">更新后台cookie</a>
 	</div>
 </div>
 <!-- 充值窗口 -->

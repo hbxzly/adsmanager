@@ -10,7 +10,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class CustomHttpClient {
 
@@ -19,9 +23,25 @@ public class CustomHttpClient {
         //1.生成httpclient，相当于该打开一个浏览器
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
+        httpPost.addHeader(":authority", "rapi.sinoclick.com");
+        httpPost.addHeader(":method", "POST");
+        httpPost.addHeader(":path", "/adaccount/getList");
+        httpPost.addHeader(":scheme", "https");
+        httpPost.addHeader("accept", "application/json, text/plain, */*");
+        httpPost.addHeader("accept-encoding", "gzip, deflate, br");
+        httpPost.addHeader("accept-language", "zh-CN,zh;q=0.9");
+//        httpPost.addHeader("content-length", "150");
+        httpPost.addHeader("content-type", "application/json;charset=UTF-8");
         httpPost.addHeader("cookie", cookie);
-        httpPost.addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
-        httpPost.addHeader("x-sino-domain", "sinoclick");
+        httpPost.addHeader("origin", "https://business.sinoclick.com");
+        httpPost.addHeader("referer", "https://business.sinoclick.com/");
+        httpPost.addHeader("sec-ch-ua", "\"Chromium\";v=\"112\", \"Google Chrome\";v=\"112\", \"Not:A-Brand\";v=\"99\"");
+        httpPost.addHeader("sec-ch-ua-mobile", "?0");
+        httpPost.addHeader("sec-ch-ua-platform", "\"Windows\"");
+        httpPost.addHeader("sec-fetch-dest", "empty");
+        httpPost.addHeader("sec-fetch-mode", "cors");
+        httpPost.addHeader("sec-fetch-site", "same-site");
+        httpPost.addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36");
         String str = requestData;
         StringEntity stringEntity = new StringEntity(str, ContentType.APPLICATION_JSON);
         httpPost.setEntity(stringEntity);
@@ -30,7 +50,6 @@ public class CustomHttpClient {
         try {
             //使用httpClient发起请求 获取 response
             response = httpClient.execute(httpPost);
-
             //解析响应
             if (response.getStatusLine().getStatusCode() == 200) {
                 content = EntityUtils.toString(response.getEntity(), "utf8");

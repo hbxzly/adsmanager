@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hbx.adsmanager.domain.AccountSystem;
 import com.hbx.adsmanager.domain.AdAccountRechargeRecord;
 import com.hbx.adsmanager.mapper.AccountSystemMapper;
+import com.hbx.adsmanager.service.AccountSystemService;
 import com.hbx.adsmanager.service.AdAccountRechargeRecordService;
 import com.hbx.adsmanager.util.PageBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,10 @@ public class AdAccountRechargeRecordController {
 
     @Autowired
     AccountSystemMapper accountSystemMapper;
+
+    @Autowired
+    AccountSystemService accountSystemService;
+
 
     @RequestMapping("getAdAccountRechargeRecordList")
     @ResponseBody
@@ -50,12 +55,18 @@ public class AdAccountRechargeRecordController {
 
     @RequestMapping("addAdAccountRechargeRecord")
     @ResponseBody
-    public void addAdAccountRechargeRecord(String startTime){
+    public void addAdAccountRechargeRecord(String startTime,String accountSystem){
 
-        List<AccountSystem> accountSystemList = accountSystemMapper.selectList(new QueryWrapper<>());
-        for(AccountSystem accountSystem:accountSystemList){
-            adAccountRechargeRecordService.addAdAccountRechargeRecord(startTime , accountSystem);
+        if (accountSystem !="" && accountSystem != null){
+            AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
+            adAccountRechargeRecordService.addAdAccountRechargeRecord(startTime , system);
+        }else {
+            List<AccountSystem> accountSystemList = accountSystemMapper.selectList(new QueryWrapper<>());
+            for(AccountSystem accountSystemTemp:accountSystemList){
+                adAccountRechargeRecordService.addAdAccountRechargeRecord(startTime , accountSystemTemp);
+            }
         }
+
     }
 
 }

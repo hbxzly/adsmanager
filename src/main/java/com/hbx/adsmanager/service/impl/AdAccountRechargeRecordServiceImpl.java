@@ -76,8 +76,6 @@ public class AdAccountRechargeRecordServiceImpl implements AdAccountRechargeReco
     @Override
     public void addAdAccountRechargeRecord(String startTime, AccountSystem accountSystem) {
 
-
-
         LocalDate endDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String endDateFormat = endDate.format(formatter);

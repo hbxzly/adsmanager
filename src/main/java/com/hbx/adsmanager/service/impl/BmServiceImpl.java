@@ -28,11 +28,13 @@ public class BmServiceImpl implements BmService {
 
     @Override
     public List<Bm> getBmList(String accountSystem,String adAccountId) throws InterruptedException {
+        System.out.println("getBmList");
         AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
         String cookie = accountCookieService.queryCookie(system.getAccount());
         String GET_ACCOUNT_BM_LIST_RD = "{\"adAccountId\": \""+adAccountId+"\"}";
         String s = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_ACCOUNT_BM_LIST_POST, cookie, GET_ACCOUNT_BM_LIST_RD);
         Map<String, String> map = JSON.parseObject(s, new TypeReference<HashMap<String, String>>() {});
+        System.out.println("ceshi:"+map);
         if (map.get("code").equals("0")){
             List<Bm> bmList = JSONArray.parseArray(map.get("result"),Bm.class);
             return bmList;

@@ -37,6 +37,31 @@ $(function() {
         closed: true,
         buttons: [
             {
+                text:'获取截图',
+                plain: true,
+                iconCls:'icon-qrcode',
+                handler:function() {
+                    if (endEditing()) {
+                        var $dg = $('#rechargeTable');
+                        if ($dg.datagrid('getChanges').length) {
+                            var updated = $dg.datagrid('getChanges', "updated");//获取修改状态的行
+                            if (updated.length) {
+                                var adAccountRechargeVoList = JSON.stringify(updated);
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/selenium/adAccountRechargeScreenshot",
+                                    contentType: "application/json; charset=UTF-8",
+                                    data: adAccountRechargeVoList,
+                                    success: function (data) {
+                                        $.messager.alert("提示","已保存付款截图","success")
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 text:'提交',
                 plain: true,
                 iconCls:'icon-user_add',
@@ -53,14 +78,13 @@ $(function() {
                                     contentType: "application/json; charset=UTF-8",
                                     data: adAccountRechargeVoList,
                                     success: function (data) {
-
                                     }
                                 });
                             }
                         }
                     }
                 }
-            },
+            }
         ],
         onBeforeOpen: function () {
         },

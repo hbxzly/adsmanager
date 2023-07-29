@@ -83,7 +83,7 @@ public class AdAccountServiceImpl implements AdAccountService {
 
 
     /**
-     * 更新账户后他7天消耗
+     * 更新账户消耗
      * @param clientName
      */
     @Override
@@ -93,7 +93,7 @@ public class AdAccountServiceImpl implements AdAccountService {
         String cookie = accountCookieService.queryCookie(accountSystem.getAccount());
 
         LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.plusDays(-8);
+        LocalDate startDate = endDate.plusDays(-30);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String endDateFormat = endDate.format(formatter);
         String startDateFormat = startDate.format(formatter);
@@ -103,6 +103,7 @@ public class AdAccountServiceImpl implements AdAccountService {
         try {
             String s = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_AD_ACCOUNT_INSIGHT_LIST_POST, cookie, GET_AD_ACCOUNT_INSIGHT_LIST_POST_RD) ;
             Map<String, String> map = JSON.parseObject(s, new TypeReference<HashMap<String, String>>() {});
+            System.out.println("ceshiceshi"+map);
             Map<String, String> mapResult = JSON.parseObject(map.get("result"), new TypeReference<HashMap<String, String>>() {});
             List<AdAccountInsightVo> adAccountInsightVoList = JSONObject.parseArray(mapResult.get("result"), AdAccountInsightVo.class);
             BigDecimal bigDecimal = new BigDecimal(0.00);

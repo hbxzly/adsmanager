@@ -60,11 +60,18 @@ public class AdAccountController {
         return adAccountService.unBindBm(accountSystem, adAccountId, bmId);
     }
 
+    /**
+     * 根据后台更新账户
+     * @param clientName
+     */
     @RequestMapping("updateAccountSystemAdAccount")
     @ResponseBody
-    public void updateAccountSystemAdAccount(String clientName){
-        accountSystemService.updateAccountSystemAccountInfo(clientName);
-        adAccountService.updateAdAccountSpendAmount(clientName);
+    public void updateAccountSystemAdAccount(String[] clientName){
+        for (String accountSystem :clientName) {
+            accountSystemService.updateAccountSystemAccountInfo(accountSystem);
+            adAccountService.updateAdAccountSpendAmount(accountSystem);
+        }
+
     }
 
 

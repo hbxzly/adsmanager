@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hbx.adsmanager.domain.AccountSystem;
 import com.hbx.adsmanager.domain.WalletRechargeRecord;
 import com.hbx.adsmanager.mapper.AccountSystemMapper;
+import com.hbx.adsmanager.service.AccountSystemService;
 import com.hbx.adsmanager.service.WalletRechargeRecordService;
 import com.hbx.adsmanager.util.PageBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class WalletRechargeRecordController {
     @Autowired
     AccountSystemMapper accountSystemMapper;
 
+    @Autowired
+    AccountSystemService accountSystemService;
+
     @RequestMapping("getWalletRechargeRecordList")
     @ResponseBody
     public Object getWalletRechargeRecordList(int page, int rows, WalletRechargeRecord walletRechargeRecord){
@@ -41,11 +45,17 @@ public class WalletRechargeRecordController {
 
     @RequestMapping("addRechargeRecordList")
     @ResponseBody
-    public void addRechargeRecordList(String startTime){
+    public void addRechargeRecordList(String startTime, String accountSystem) {
 
-        List<AccountSystem> accountSystemList = accountSystemMapper.selectList(new QueryWrapper<>());
-        for (AccountSystem accountSystem : accountSystemList){
-            walletRechargeRecordService.addRechargeRecordList(startTime , accountSystem);
+        if (accountSystem != "" && accountSystem != null) {
+            AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
+            walletRechargeRecordService.addRechargeRecordList(startTime, system);
+        } else {
+            List<AccountSystem> accountSystemList = accountSystemMapper.selectList(new QueryWrapper<>());
+            for (AccountSystem accountSystemTemp : accountSystemList) {
+                walletRechargeRecordService.addRechargeRecordList(startTime, accountSystemTemp);
+            }
+
         }
 //        System.out.println(startTime);
     }

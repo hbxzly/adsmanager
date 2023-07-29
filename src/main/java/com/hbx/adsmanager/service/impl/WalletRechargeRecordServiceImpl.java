@@ -14,6 +14,7 @@ import com.hbx.adsmanager.mapper.WalletRechargeRecordMapper;
 import com.hbx.adsmanager.service.AccountCookieService;
 import com.hbx.adsmanager.service.WalletRechargeRecordService;
 import com.hbx.adsmanager.util.CustomHttpClient;
+import com.hbx.adsmanager.util.JsonParseUtil;
 import com.hbx.adsmanager.util.PageBean;
 import com.hbx.adsmanager.util.SinoClickRequestUrl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,29 +71,14 @@ public class WalletRechargeRecordServiceImpl implements WalletRechargeRecordServ
         LocalDate date = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String dateFormat = date.format(formatter);
-
         String GET_RECHARGE_RECORD_LIST_POST_RD = "{\"dataLevel\": \"1\",\"pageSize\": \"50\",\"pageNum\": \"1\",\"endDate\": \"" + dateFormat + "\",\"startDate\": \"" + startTime + "\"}";
-
 
         try {
 
             String s = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_RECHARGE_RECORD_LIST_POST,
                     accountCookieService.queryCookie(accountSystem.getAccount()), GET_RECHARGE_RECORD_LIST_POST_RD);
-            Map<String, String> map = JSON.parseObject(s, new TypeReference<HashMap<String, String>>() {
-            });
-            Map<String, String> mapResult = JSON.parseObject(map.get("result"), new TypeReference<HashMap<String, String>>() {
-            });
-            List<WalletRechargeRecordVo> rechargeRecordVoList = JSONObject.parseArray(mapResult.get("result"), WalletRechargeRecordVo.class);
-            for (WalletRechargeRecordVo rechargeRecordVo : rechargeRecordVoList) {
-                WalletRechargeRecord walletRechargeRecord = new WalletRechargeRecord();
-                walletRechargeRecord.setActionType(rechargeRecordVo.getActionType());
-                walletRechargeRecord.setChangeDesc(rechargeRecordVo.getChangeDesc());
-                walletRechargeRecord.setChangeType(rechargeRecordVo.getChangeType());
-                walletRechargeRecord.setCompanyName(rechargeRecordVo.getCompanyName());
-                walletRechargeRecord.setMobile(rechargeRecordVo.getMobile());
-                walletRechargeRecord.setNickName(rechargeRecordVo.getNickName());
-                walletRechargeRecord.setCreateTime(rechargeRecordVo.getCreateTime());
-                walletRechargeRecord.setUsdAmount(rechargeRecordVo.getChangeAmount().getUsdAmount());
+            List<WalletRechargeRecord> walletRechargeRecordList = JsonParseUtil.parseRechargeRecordList(s);
+            for (WalletRechargeRecord walletRechargeRecord : walletRechargeRecordList) {
                 QueryWrapper<WalletRechargeRecord> rechargeRecordQueryWrapper = new QueryWrapper<>();
                 rechargeRecordQueryWrapper.eq("create_time", walletRechargeRecord.getCreateTime());
                 rechargeRecordQueryWrapper.eq("change_desc", walletRechargeRecord.getChangeDesc());

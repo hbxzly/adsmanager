@@ -364,6 +364,7 @@
 					type: "post",
 					url: "/accountSystem/updateAccountSystemBasicInfo?accountSystems="+accountSystems,
 					success: function(data){
+						$.messager.alert("消息提醒", "更新基础信息成功", "success");
 						$("#dataList").datagrid("reload");
 					}
 				});
@@ -385,6 +386,7 @@
 					type: "post",
 					url: "/accountSystem/updateAccountSystemAccountInfo?accountSystems="+accountSystems,
 					success: function(data){
+						$.messager.alert("消息提醒", "更新钱包信息成功", "success");
 						$("#dataList").datagrid("reload");
 					}
 				});

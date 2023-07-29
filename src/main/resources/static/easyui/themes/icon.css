@@ -22,6 +22,9 @@
 .icon-adAccount{
 	background:url('icons/adAccount.png') no-repeat center center;
 }
+.icon-qrcode{
+	background:url('icons/qrcode.png') no-repeat center center;
+}
 .icon-accountSystem{
 	background:url('icons/accountSystem.png') no-repeat center center;
 }
