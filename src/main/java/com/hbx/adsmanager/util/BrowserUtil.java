@@ -60,8 +60,12 @@ public class BrowserUtil {
     /**
      * 充值人民币
      */
-
     public static String rechargeCNY = "/html/body/div[1]/div/section/section/section/main/div/div[2]/h5/span";
+
+    /**
+     * 钱包抵扣
+     */
+    public static String walletPay = "/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div[2]/div[2]/section/section[2]/section[1]/div/div[3]/label/span/input";
 
 
 }
