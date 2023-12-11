@@ -42,11 +42,14 @@
 								return '<a href="#" onclick="openScreenshot(\'' + value + '\')">查看图片</a>';
 							}},
 						{field: 'rechargeStatus', title: '充值状态', align: 'center',formatter: function (value){
-								if (value == '0'){
+								if (value == '1'){
 									return "未充值"
 								}
-								if (value == '1'){
+								if (value == '2'){
 									return "已充值"
+								}
+								if (value == '10'){
+									return "已取消"
 								}
 							}},
 						{field: 'check', title: '检查充值', align: 'center', formatter: function(value, row, index) {

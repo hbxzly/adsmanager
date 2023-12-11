@@ -36,7 +36,7 @@ public class TimedTask {
     @Autowired
     AdAccountRechargeRecordService adAccountRechargeRecordService;
 
-   /*@Scheduled(cron = "0 0,40 3,12 * * ?")
+   @Scheduled(cron = "0 0,40 3,12 * * ?")
     public void updateAccountCookie() throws InterruptedException {
         List<AccountSystem> accountSystemList = accountSystemMapper.selectList(new QueryWrapper<>());
         for (AccountSystem accountSystem:accountSystemList){
@@ -70,6 +70,6 @@ public class TimedTask {
             walletRechargeRecordService.addRechargeRecordList(date.toString() ,system );
             adAccountService.updateAdAccountSpendAmount(system.getClientName());
         }
-    }*/
+    }
 
 }

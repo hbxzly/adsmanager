@@ -179,21 +179,30 @@ public class AccountSystemServiceImpl implements AccountSystemService {
 
             String userAssetsString = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_USER_ASSETS_POST, cookie, WALLET_BALANCE_RD);
             String walletBalance = JsonParseUtil.getWalletBalance(userAssetsString);
-
             String adAccountListStr = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_LIST_POST, cookie, GET_LIST_POST_RD);
             List<AdAccount> adAccountList = JsonParseUtil.parseAdAccountList(adAccountListStr);
+            System.out.println("-----------------");
+            System.out.println(adAccountList);
+            System.out.println("-----------------");
             for (AdAccount adAccount : adAccountList) {;
                 QueryWrapper<AdAccount> adAccountQueryWrapper = new QueryWrapper<>();
                 adAccountQueryWrapper.eq("id", adAccount.getId());
+                adAccount.setAdAccountSystemAlias(accountSystem.getClientAlias());
+                adAccount.setAdAccountSystemBdName(accountSystem.getBdName());
                 if (adAccountMapper.selectOne(adAccountQueryWrapper) != null) {
                     UpdateWrapper<AdAccount> accountUpdateWrapper = new UpdateWrapper<>();
                     accountUpdateWrapper.eq("id",adAccount.getId())
+                            .set("account_status",adAccount.getAccountStatus())
+                            .set("transfer_and_rest_status",adAccount.getTransferAndRestStatus())
+                            .set("ad_account_name",adAccount.getAdAccountName())
+                            .set("balance",adAccount.getBalance())
+                            .set("ad_account_id",adAccount.getAdAccountId())
+                            .set("recharge_status",adAccount.getRechargeStatus())
+                            .set("transfer_and_rest_status",adAccount.getTransferAndRestStatus())
                             .set("ad_account_system",accountSystem.getClientName())
                             .set("ad_account_system_alias",accountSystem.getClientAlias())
                             .set("ad_account_system_status",accountSystem.getClientStatus())
                             .set("ad_account_system_bd_name",accountSystem.getBdName())
-                            .set("recharge_status",adAccount.getRechargeStatus())
-                            .set("account_status",adAccount.getAccountStatus())
                             .set("update_time",currentTime);
                     adAccountMapper.update(null,accountUpdateWrapper);
                 } else {

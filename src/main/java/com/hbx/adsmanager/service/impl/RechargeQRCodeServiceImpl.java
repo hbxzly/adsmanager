@@ -73,6 +73,7 @@ public class RechargeQRCodeServiceImpl implements RechargeQRCodeService {
 
     @Override
     public void updateRechargeStatus(String tradeTid) throws InterruptedException, IOException {
+        System.out.println(checkRechargeStatus(tradeTid));
         String status = JsonParseUtil.paresRechargeStatus(checkRechargeStatus(tradeTid));
         UpdateWrapper<RechargeQRCode> rechargeQRCodeUpdateWrapper = new UpdateWrapper<>();
         rechargeQRCodeUpdateWrapper.eq("trade_tid",tradeTid)

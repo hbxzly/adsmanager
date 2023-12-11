@@ -50,6 +50,15 @@ public class SeleniumController {
         return "OK";
     }
 
+    @RequestMapping("adAccountRechargeScreenshot")
+    @ResponseBody
+    public String adAccountRechargeByWallet(@RequestBody List<AdAccountRechargeVo> adAccountRechargeVoList) throws InterruptedException {
+        for (AdAccountRechargeVo rechargeVo :adAccountRechargeVoList) {
+            seleniumService.adAccountRechargeScreenshot(rechargeVo.getAdAccountSystem(),rechargeVo.getId(),rechargeVo.getPayMethod(), rechargeVo.getRechargeAmount());
+        }
+        return "OK";
+    }
+
     @RequestMapping("closeChrome")
     @ResponseBody
     public String closeChrome(){

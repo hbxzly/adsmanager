@@ -72,18 +72,18 @@ public class SeleniumServiceImpl implements SeleniumService {
 
             driver = new ChromeDriver(option);
             driver.get("https://passport.sinoclick.com/login");
-            String html=driver.getPageSource();
+//            String html=driver.getPageSource();
             // 这里只是打印源码，后续可以根据自己的需求来解析相关的数据
-            System.out.println(html);
+//            System.out.println(html);
 
 
 
 //            Thread.sleep(1000);
             WebDriverWait webDriverWait = new WebDriverWait(driver, 20, 1);
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.loginBt)));
-            WebElement account = driver.findElement(By.id("account"));
+            WebElement account = driver.findElement(By.xpath(BrowserUtil.accountInput));
             account.sendKeys(accountSystem.getAccount());
-            WebElement password = driver.findElement(By.id("password"));
+            WebElement password = driver.findElement(By.xpath(BrowserUtil.passwordInput));
             password.sendKeys(accountSystem.getPassword());
             //Thread.sleep(1000L);
             WebElement loginButton = driver.findElement(By.xpath(BrowserUtil.loginBt));
@@ -132,6 +132,7 @@ public class SeleniumServiceImpl implements SeleniumService {
 
     }
 
+
     @Override
     public void closeChrome() {
         driver.close();
@@ -152,6 +153,108 @@ public class SeleniumServiceImpl implements SeleniumService {
             AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
             loginAccountSystem(system);
             driver.manage().window().maximize();
+            Set<Cookie> cookies = driver.manage().getCookies();
+            for (Cookie cookie : cookies) {
+                cookieStr = cookieStr + cookie.getName() + "=" + cookie.getValue() + ";";
+            }
+            accountCookieService.updateAccountCookie(system.getAccount(),cookieStr);
+            WebDriverWait webDriverWait = new WebDriverWait(driver, 20, 1);
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.clientPageRechargeBt)));
+//            Thread.sleep(500);
+            driver.get("https://business.sinoclick.com/client/myorder/recharge/ad-account?account=" + id + "&channel=1&user=" + system.getUserId() + "");
+            By accountInput = By.xpath(BrowserUtil.adAccountSelectInput);
+            webDriverWait.until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElementValue(accountInput, "")));
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.goRechargeBt)));
+            WebElement rechargeButton = driver.findElement(By.xpath(BrowserUtil.goRechargeBt));
+            WebElement rechargeAmount = driver.findElement(By.xpath(BrowserUtil.rechargeAmountInput));
+            rechargeAmount.sendKeys(amount);
+            rechargeButton.click();
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.goPayBt)));
+            if (payMethod.equals("2")) {
+                WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.weiXinPay));
+                payMethodBt.click();
+                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
+                goPayBt.click();
+                webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
+                WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
+                String cny = StringUtil.extractNumber(element.getText());
+                String currentUrl = driver.getCurrentUrl();
+                Map<String, String> urlMap = StringUtil.extractValuesFromURL(currentUrl);
+                WebElement QRCode = driver.findElement(By.xpath(BrowserUtil.QRCode));
+                String src = QRCode.getAttribute("src");
+                String base64 = StringUtil.extractImageBase64(src);
+                String screenshotDirectory = "src/main/resources/static/screenshot";
+                File screenshotDir = new File(screenshotDirectory);
+
+                if (!screenshotDir.exists()) {
+                    screenshotDir.mkdirs();
+                }
+
+                File destinationFile = new File(screenshotDir, id+"+"+urlMap.get("tradeTid")+".png");
+                RechargeQRCode rechargeQRCode = new RechargeQRCode(urlMap.get("tradeTid"),urlMap.get("tradeOrderId"),urlMap.get("payMethod"),base64,id,accountSystem,new Date(),destinationFile.getName(),amount,cny,null);
+                rechargeQRCodeService.saveRechargeQRCode(rechargeQRCode);
+
+                // 截图操作
+                File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+                try {
+                    // 将截图文件保存到指定路径
+                    FileUtils.copyFile(screenshotFile, destinationFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                closeChrome();
+            }
+            if (payMethod.equals("1")) {
+                WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.alipay));
+                payMethodBt.click();
+                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
+                goPayBt.click();
+                webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
+                WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
+                String cny = StringUtil.extractNumber(element.getText());
+                String currentUrl = driver.getCurrentUrl();
+                Map<String, String> urlMap = StringUtil.extractValuesFromURL(currentUrl);
+                WebElement QRCode = driver.findElement(By.xpath(BrowserUtil.QRCode));
+                String src = QRCode.getAttribute("src");
+                String base64 = StringUtil.extractImageBase64(src);
+
+                String screenshotDirectory = "src/main/resources/static/screenshot";
+                File screenshotDir = new File(screenshotDirectory);
+
+                if (!screenshotDir.exists()) {
+                    screenshotDir.mkdirs();
+                }
+
+                File destinationFile = new File(screenshotDir, id+"+"+urlMap.get("tradeTid")+".png");
+                RechargeQRCode rechargeQRCode = new RechargeQRCode(urlMap.get("tradeTid"),urlMap.get("tradeOrderId"),urlMap.get("payMethod"),base64,id,accountSystem,new Date(),destinationFile.getName(),amount,cny,null);
+                rechargeQRCodeService.saveRechargeQRCode(rechargeQRCode);
+
+                // 截图操作
+                File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+                try {
+                    // 将截图文件保存到指定路径
+                    FileUtils.copyFile(screenshotFile, destinationFile);
+                    System.out.println("截图已保存: " + destinationFile.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 保存充值截图
+     */
+    public void adAccountRechargeScreenshot(String accountSystem, String id, String payMethod, String amount){
+        String cookieStr = "";
+        try {
+            AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
+            loginAccountSystem(system);
             Set<Cookie> cookies = driver.manage().getCookies();
             for (Cookie cookie : cookies) {
                 cookieStr = cookieStr + cookie.getName() + "=" + cookie.getValue() + ";";
@@ -239,6 +342,8 @@ public class SeleniumServiceImpl implements SeleniumService {
                     e.printStackTrace();
                 }
 
+
+                closeChrome();
             }
 
         } catch (Exception e) {
@@ -246,107 +351,9 @@ public class SeleniumServiceImpl implements SeleniumService {
         }
     }
 
-    /**
-     * 保存充值截图
-     */
-    public void adAccountRechargeScreenshot(String accountSystem, String id, String payMethod, String amount){
-        String cookieStr = "";
-        try {
-            AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
-            loginAccountSystem(system);
-            Set<Cookie> cookies = driver.manage().getCookies();
-            for (Cookie cookie : cookies) {
-                cookieStr = cookieStr + cookie.getName() + "=" + cookie.getValue() + ";";
-            }
-            WebDriverWait webDriverWait = new WebDriverWait(driver, 20, 1);
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.clientPageRechargeBt)));
-//            Thread.sleep(500);
-            driver.get("https://business.sinoclick.com/client/myorder/recharge/ad-account?account=" + id + "&channel=1&user=" + system.getUserId() + "");
-            By accountInput = By.xpath(BrowserUtil.adAccountSelectInput);
-            webDriverWait.until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElementValue(accountInput, "")));
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.goRechargeBt)));
-            WebElement rechargeButton = driver.findElement(By.xpath(BrowserUtil.goRechargeBt));
-            WebElement rechargeAmount = driver.findElement(By.xpath(BrowserUtil.rechargeAmountInput));
-            rechargeAmount.sendKeys(amount);
-            rechargeButton.click();
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.goPayBt)));
-            if (payMethod.equals("2")) {
-                WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.weiXinPay));
-                payMethodBt.click();
-                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
-                goPayBt.click();
-                webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
-                WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
-                String cny = StringUtil.extractNumber(element.getText());
-                String currentUrl = driver.getCurrentUrl();
-                Map<String, String> urlMap = StringUtil.extractValuesFromURL(currentUrl);
-                WebElement QRCode = driver.findElement(By.xpath(BrowserUtil.QRCode));
-                String src = QRCode.getAttribute("src");
-                String base64 = StringUtil.extractImageBase64(src);
-                String screenshotDirectory = "src/main/resources/static/screenshot";
-                File screenshotDir = new File(screenshotDirectory);
+    @Override
+    public void adAccountRechargeByWallet(String accountSystem, String id, String payment, String amount) {
 
-                if (!screenshotDir.exists()) {
-                    screenshotDir.mkdirs();
-                }
-
-                File destinationFile = new File(screenshotDir, urlMap.get("tradeTid")+".png");
-                RechargeQRCode rechargeQRCode = new RechargeQRCode(urlMap.get("tradeTid"),urlMap.get("tradeOrderId"),urlMap.get("payMethod"),base64,id,accountSystem,new Date(),destinationFile.getName(),amount,cny,null);
-                rechargeQRCodeService.saveRechargeQRCode(rechargeQRCode);
-
-                // 截图操作
-                File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-                try {
-                    // 将截图文件保存到指定路径
-                    FileUtils.copyFile(screenshotFile, destinationFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                closeChrome();
-            }
-            if (payMethod.equals("1")) {
-                WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.alipay));
-                payMethodBt.click();
-                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
-                goPayBt.click();
-                webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
-                WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
-                String cny = StringUtil.extractNumber(element.getText());
-                String currentUrl = driver.getCurrentUrl();
-                Map<String, String> urlMap = StringUtil.extractValuesFromURL(currentUrl);
-                WebElement QRCode = driver.findElement(By.xpath(BrowserUtil.QRCode));
-                String src = QRCode.getAttribute("src");
-                String base64 = StringUtil.extractImageBase64(src);
-
-                String screenshotDirectory = "src/main/resources/static/screenshot";
-                File screenshotDir = new File(screenshotDirectory);
-
-                if (!screenshotDir.exists()) {
-                    screenshotDir.mkdirs();
-                }
-
-                File destinationFile = new File(screenshotDir, urlMap.get("tradeTid")+".png");
-                RechargeQRCode rechargeQRCode = new RechargeQRCode(urlMap.get("tradeTid"),urlMap.get("tradeOrderId"),urlMap.get("payMethod"),base64,id,accountSystem,new Date(),destinationFile.getName(),amount,cny,null);
-                rechargeQRCodeService.saveRechargeQRCode(rechargeQRCode);
-
-                // 截图操作
-                File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-                try {
-                    // 将截图文件保存到指定路径
-                    FileUtils.copyFile(screenshotFile, destinationFile);
-                    System.out.println("截图已保存: " + destinationFile.getAbsolutePath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-                closeChrome();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**

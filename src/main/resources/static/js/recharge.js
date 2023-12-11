@@ -62,6 +62,31 @@ $(function() {
                 }
             },
             {
+                text:'钱包充值',
+                plain: true,
+                iconCls:'icon-qrcode',
+                handler:function() {
+                    if (endEditing()) {
+                        var $dg = $('#rechargeTable');
+                        if ($dg.datagrid('getChanges').length) {
+                            var updated = $dg.datagrid('getChanges', "updated");//获取修改状态的行
+                            if (updated.length) {
+                                var adAccountRechargeVoList = JSON.stringify(updated);
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/selenium/adAccountRechargeByWallet",
+                                    contentType: "application/json; charset=UTF-8",
+                                    data: adAccountRechargeVoList,
+                                    success: function (data) {
+                                        $.messager.alert("提示","已完成充值","success")
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 text:'提交',
                 plain: true,
                 iconCls:'icon-user_add',

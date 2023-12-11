@@ -35,17 +35,16 @@ public class JsonParseUtil {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(jsonData);
             JsonNode resultNode = rootNode.get("result");
-
             if (resultNode != null && resultNode.has("result")) {
                 JsonNode accountNodeList = resultNode.get("result");
                 for (JsonNode accountNode : accountNodeList) {
                     AdAccount adAccount = new AdAccount();
                     adAccount.setId(accountNode.get("adAccountId").asText());
+                    adAccount.setAdAccountId(accountNode.get("adAccountId").asText().replace("act_",""));
                     adAccount.setAccountStatus(accountNode.get("accountStatus").asText());
                     adAccount.setTransferAndRestStatus(accountNode.get("transferAndRestStatus").asText());
                     adAccount.setAdAccountName(accountNode.get("adAccountName").asText());
                     adAccount.setBalance(accountNode.get("balance").asDouble());
-                    adAccount.setAdAccountId(accountNode.get("dateCenterAdAccountId").asText());
                     adAccount.setRechargeStatus(accountNode.get("rechargeStatus").asText());
                     adAccount.setPauseActionStatus(accountNode.get("pauseActionStatus").asText());
                     adAccount.setBalanceWarningStatus(accountNode.get("balanceWarningStatus").asText());

@@ -1,12 +1,14 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/ads?setUnicode=true&characterEncoding=utf8&useAffectedRows=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://192.168.2.105:3306/ads?setUnicode=true&characterEncoding=utf8&useAffectedRows=true&useSSL=false&zeroDateTimeBehavior=convertToNull
     username: root
     password: 123
+#    url: jdbc:mysql://127.0.0.1:3306/ads?setUnicode=true&characterEncoding=utf8&useAffectedRows=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+#    username: root
+#    password: 1234
 
 mybatis-plus:
-
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志
     map-underscore-to-camel-case: true
