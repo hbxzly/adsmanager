@@ -161,15 +161,17 @@ public class SeleniumServiceImpl implements SeleniumService {
             WebDriverWait webDriverWait = new WebDriverWait(driver, 20, 1);
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.clientPageRechargeBt)));
 //            Thread.sleep(500);
-            driver.get("https://business.sinoclick.com/client/myorder/recharge/ad-account?account=" + id + "&channel=1&user=" + system.getUserId() + "");
-            By accountInput = By.xpath(BrowserUtil.adAccountSelectInput);
-            webDriverWait.until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElementValue(accountInput, "")));
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.goRechargeBt)));
-            WebElement rechargeButton = driver.findElement(By.xpath(BrowserUtil.goRechargeBt));
-            WebElement rechargeAmount = driver.findElement(By.xpath(BrowserUtil.rechargeAmountInput));
-            rechargeAmount.sendKeys(amount);
-            rechargeButton.click();
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.goPayBt)));
+            driver.get("https://business.sinoclick.com/client/facebook/accountList");
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/section/section/section/main/section/section/div[2]/div[3]/button/span")))
+                            .click();
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[1]/div/label[2]/span[2]")))
+                            .click();
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/form/div[2]/div[1]/div[2]/div/div/textarea")))
+                            .sendKeys(id+" "+amount);
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/form/div[3]/div/div/div/button/span")))
+                            .click();
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div/form/div[3]/div/div/div/button/span")))
+                            .click();
             if (payMethod.equals("2")) {
                 WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.weiXinPay));
                 payMethodBt.click();
@@ -203,7 +205,7 @@ public class SeleniumServiceImpl implements SeleniumService {
                     e.printStackTrace();
                 }
 
-                closeChrome();
+//                closeChrome();
             }
             if (payMethod.equals("1")) {
                 WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.alipay));
@@ -365,16 +367,16 @@ public class SeleniumServiceImpl implements SeleniumService {
             WebDriverWait webDriverWait = new WebDriverWait(driver, 20, 1);
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.clientPageRechargeBt)));
 //            Thread.sleep(500);
-            driver.get("https://business.sinoclick.com/client/myorder/recharge/ad-account?account=" + id + "&channel=1&user=" + system.getUserId() + "");
-            By accountInput = By.xpath(BrowserUtil.adAccountSelectInput);
-            webDriverWait.until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElementValue(accountInput, "")));
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.goRechargeBt)));
-            WebElement rechargeButton = driver.findElement(By.xpath(BrowserUtil.goRechargeBt));
-            WebElement rechargeAmount = driver.findElement(By.xpath(BrowserUtil.rechargeAmountInput));
-            rechargeAmount.sendKeys(amount);
-            rechargeButton.click();
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.goPayBt)));
-            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(BrowserUtil.walletPay)))
+            driver.get("https://business.sinoclick.com/client/facebook/accountList");
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/section/section/section/main/section/section/div[2]/div[3]/button/span")))
+                    .click();
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[1]/div/label[2]/span[2]")))
+                    .click();
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/form/div[2]/div[1]/div[2]/div/div/textarea")))
+                    .sendKeys(id+" "+amount);
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/form/div[3]/div/div/div/button/span")))
+                    .click();
+            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div/form/div[3]/div/div/div/button/span")))
                     .click();
             if (payment.equals("2")) {
                 WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.weiXinPay));
