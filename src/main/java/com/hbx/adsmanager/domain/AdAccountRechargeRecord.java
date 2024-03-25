@@ -55,7 +55,7 @@ public class AdAccountRechargeRecord {
     private String exchangeRate;
     /**账户ID*/
     @TableField("channel_account_id")
-    private String channelAccountId;
+    private String  channelAccountId;
     /**账户类型*/
     @TableField("channel_id")
     private String channelId;
@@ -68,7 +68,6 @@ public class AdAccountRechargeRecord {
 
     @TableField("note")
     private String note;
-
 
     @TableField("receiver")
     private String receiver;

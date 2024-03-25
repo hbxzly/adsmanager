@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * 定时任务
+ */
 @Component
 public class TimedTask {
 
@@ -36,7 +39,11 @@ public class TimedTask {
     @Autowired
     AdAccountRechargeRecordService adAccountRechargeRecordService;
 
-   @Scheduled(cron = "0 0,40 3,12 * * ?")
+    /**
+     * 更新账号cookie
+     * @throws InterruptedException
+     */
+   @Scheduled(cron = "0 0 3 * * ?")
     public void updateAccountCookie() throws InterruptedException {
         List<AccountSystem> accountSystemList = accountSystemMapper.selectList(new QueryWrapper<>());
         for (AccountSystem accountSystem:accountSystemList){
@@ -47,7 +54,11 @@ public class TimedTask {
         }
     }
 
-    @Scheduled(cron = "0 0,40 7,15 * * ?")
+    /**
+     * 更细后台信息
+     * @throws InterruptedException
+     */
+    @Scheduled(cron = "0 0 7 * * ?")
     public void updateAccountSystemInfo() throws InterruptedException {
         List<AccountSystem> accountSystemList = accountSystemMapper.selectList(new QueryWrapper<>());
         for (AccountSystem accountSystem:accountSystemList){
@@ -59,7 +70,9 @@ public class TimedTask {
         }
     }
 
-
+    /**
+     * 更新充值记录
+     */
     @Scheduled(cron = "0 0 10 * * ?")
     public void updateRechargeRecord(){
         // 获取当前日期前一天的日期

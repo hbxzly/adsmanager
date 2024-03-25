@@ -1,8 +1,5 @@
 package com.hbx.adsmanager.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -17,11 +14,13 @@ import com.hbx.adsmanager.util.CustomHttpClient;
 import com.hbx.adsmanager.util.JsonParseUtil;
 import com.hbx.adsmanager.util.PageBean;
 import com.hbx.adsmanager.util.SinoClickRequestUrl;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -132,7 +131,6 @@ public class AccountSystemServiceImpl implements AccountSystemService {
         }
     }
 
-
     /**
      * 更新后台名称、邮箱、user_id、商务
      *
@@ -142,18 +140,17 @@ public class AccountSystemServiceImpl implements AccountSystemService {
     public void updateAccountSystemBasicInfo(AccountSystem accountSystem) {
 
         String accountCookie = accountCookieService.queryCookie(accountSystem.getAccount());
-        String COMMON_RD = "{\"domain\": \"sinoclick.com\"}";
+        String requestBody = "{}";
         try {
-            String clientInfoString = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_UDESK_CLIENT_INFO_POST, accountCookie, COMMON_RD);
-            Map<String, String> clientInfoMap = JSON.parseObject(clientInfoString, new TypeReference<HashMap<String, String>>() {});
-            System.out.println(clientInfoMap);
-            AccountSystem accountSystemTemp = JSONObject.parseObject(clientInfoMap.get("result"), AccountSystem.class);
+            String clientInfoString = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_INFO_POST, accountCookie, requestBody);
+            String bmInfoString = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_SERVICE_STAFF_INFO_POST, accountCookie, requestBody);
+            Map<String, Object> clientInfoMap = JsonParseUtil.parseJSON(clientInfoString);
+            Map<String, Object> bmInfoMap = JsonParseUtil.parseJSON(bmInfoString);
             UpdateWrapper<AccountSystem> accountSystemUpdateWrapper = new UpdateWrapper<>();
             accountSystemUpdateWrapper.eq("account", accountSystem.getAccount())
-                    .set("client_name", accountSystemTemp.getClientName())
-                    .set("email", accountSystemTemp.getEmail())
-                    .set("user_id", accountSystemTemp.getUserId())
-                    .set("bd_name", accountSystemTemp.getBdName());
+                    .set("email", clientInfoMap.get("result.baseInfo.activeEmail"))
+                    .set("user_id", clientInfoMap.get("result.baseInfo.userId"))
+                    .set("bd_name", bmInfoMap.get("result.bdInfo.name"));
             accountSystemMapper.update(null, accountSystemUpdateWrapper);
         } catch (Exception e) {
             e.printStackTrace();
@@ -174,51 +171,70 @@ public class AccountSystemServiceImpl implements AccountSystemService {
         try {
             AccountSystem accountSystem = queryAccountSystemByClientName(clientName);
             String cookie = accountCookieService.queryCookie(accountSystem.getAccount());
-            String GET_LIST_POST_RD = "{\"channelId\": \"1\",\"keywords\": \"\",\"pageSize\": \"50\",\"pageNum\": \"1\"}";
-            String WALLET_BALANCE_RD = "{\"refresh\": \"true\"}";
+            String walletBalanceRequestBody = "{\"refresh\":\"false\"}";
+            String overviewRequestBody = "{\"refresh\":\"false\"}";
 
-            String userAssetsString = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_USER_ASSETS_POST, cookie, WALLET_BALANCE_RD);
-            String walletBalance = JsonParseUtil.getWalletBalance(userAssetsString);
-            String adAccountListStr = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_LIST_POST, cookie, GET_LIST_POST_RD);
-            List<AdAccount> adAccountList = JsonParseUtil.parseAdAccountList(adAccountListStr);
-            System.out.println("-----------------");
-            System.out.println(adAccountList);
-            System.out.println("-----------------");
-            for (AdAccount adAccount : adAccountList) {;
-                QueryWrapper<AdAccount> adAccountQueryWrapper = new QueryWrapper<>();
-                adAccountQueryWrapper.eq("id", adAccount.getId());
-                adAccount.setAdAccountSystemAlias(accountSystem.getClientAlias());
-                adAccount.setAdAccountSystemBdName(accountSystem.getBdName());
-                if (adAccountMapper.selectOne(adAccountQueryWrapper) != null) {
-                    UpdateWrapper<AdAccount> accountUpdateWrapper = new UpdateWrapper<>();
-                    accountUpdateWrapper.eq("id",adAccount.getId())
-                            .set("account_status",adAccount.getAccountStatus())
-                            .set("transfer_and_rest_status",adAccount.getTransferAndRestStatus())
-                            .set("ad_account_name",adAccount.getAdAccountName())
-                            .set("balance",adAccount.getBalance())
-                            .set("ad_account_id",adAccount.getAdAccountId())
-                            .set("recharge_status",adAccount.getRechargeStatus())
-                            .set("transfer_and_rest_status",adAccount.getTransferAndRestStatus())
-                            .set("ad_account_system",accountSystem.getClientName())
-                            .set("ad_account_system_alias",accountSystem.getClientAlias())
-                            .set("ad_account_system_status",accountSystem.getClientStatus())
-                            .set("ad_account_system_bd_name",accountSystem.getBdName())
-                            .set("update_time",currentTime);
-                    adAccountMapper.update(null,accountUpdateWrapper);
-                } else {
-                    adAccountMapper.insert(adAccount);
-                }
+            String userAssetsString = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_DEPARTMENT_ASSETS_POST, cookie, walletBalanceRequestBody);
+            String overview = CustomHttpClient.postRequest(SinoClickRequestUrl.OVERVIEW_POST, cookie, overviewRequestBody);
+            String totalCount = "";
+            if (overview != "") {
+                totalCount = JsonParseUtil.parseJSON(overview).get("result.facebook.totalCount").toString();
+                String activeCount = JsonParseUtil.parseJSON(overview).get("result.facebook.activeCount").toString();
+                String disableCount = JsonParseUtil.parseJSON(overview).get("result.facebook.disableCount").toString();
+                String walletBalance = JsonParseUtil.parseJSON(userAssetsString).get("result.wallet.balance").toString();
+                UpdateWrapper<AccountSystem> accountSystemUpdateWrapper = new UpdateWrapper<>();
+                accountSystemUpdateWrapper.eq("account", accountSystem.getAccount())
+                        .set("client_balance", walletBalance)
+                        .set("total_count", totalCount)
+                        .set("active_count", activeCount)
+                        .set("disable_count", disableCount)
+                        .set("last_sync_time", currentTime);
+                accountSystemMapper.update(null, accountSystemUpdateWrapper);
             }
 
-            AccountSystem systemAdAccount = countAccountSystemAdAccount(clientName);
-            UpdateWrapper<AccountSystem> accountSystemUpdateWrapper = new UpdateWrapper<>();
-            accountSystemUpdateWrapper.eq("account", accountSystem.getAccount())
-                    .set("client_balance", walletBalance)
-                    .set("total_count", systemAdAccount.getTotalCount())
-                    .set("active_count", systemAdAccount.getActiveCount())
-                    .set("disable_count", systemAdAccount.getDisableCount())
-                    .set("last_sync_time", currentTime);
-            accountSystemMapper.update(null, accountSystemUpdateWrapper);
+
+            for (int i = 1; i <= (Math.ceil(Integer.parseInt(totalCount)/50))+1; i++) {
+                String accountListRequestBody = "{\"channelId\": \"1\",\"pageSize\": \"50\",\"pageNum\": "+i+"}";
+                String adAccountListStr = CustomHttpClient.postRequest(SinoClickRequestUrl.AD_ACCOUNT_LIST_POST, cookie, accountListRequestBody);
+                if (adAccountListStr != "") {
+                    org.json.JSONArray adAccountList = (org.json.JSONArray) JsonParseUtil.parseJSON(adAccountListStr).get("result.result");
+                    for (int j = 0; j < adAccountList.length(); j++) {
+                        JSONObject adAccountTemp = adAccountList.getJSONObject(j);
+                        AdAccount adAccount = new AdAccount();
+                        adAccount.setId((String) adAccountTemp.get("adAccountId"));
+                        adAccount.setAdAccountId(((String) adAccountTemp.get("adAccountId")).replace("act_", ""));
+                        adAccount.setAdAccountSystemAlias(accountSystem.getClientAlias());
+                        adAccount.setAdAccountSystemBdName(accountSystem.getBdName());
+                        adAccount.setAdAccountName((String) adAccountTemp.get("adAccountName"));
+                        adAccount.setBalance(((BigDecimal) adAccountTemp.get("balance")).doubleValue());
+                        adAccount.setAdAccountSystem(clientName);
+                        adAccount.setAccountStatus(adAccountTemp.get("adAccountStatus").toString());
+                        adAccount.setOpenAccountCompany((String) adAccountTemp.get("openAccountCompany"));
+                        adAccount.setUpdateTime(new Date());
+
+                        QueryWrapper<AdAccount> adAccountQueryWrapper = new QueryWrapper<>();
+                        adAccountQueryWrapper.eq("id", adAccountTemp.get("adAccountId"));
+                        if (adAccountMapper.selectOne(adAccountQueryWrapper) != null) {
+                            UpdateWrapper<AdAccount> accountUpdateWrapper = new UpdateWrapper<>();
+                            accountUpdateWrapper.eq("id", adAccount.getId())
+                                    .set("account_status", adAccount.getAccountStatus())
+                                    .set("ad_account_name", adAccount.getAdAccountName())
+                                    .set("balance", adAccount.getBalance())
+                                    .set("open_account_company", adAccount.getOpenAccountCompany())
+                                    .set("ad_account_id", adAccount.getAdAccountId())
+                                    .set("ad_account_system", accountSystem.getClientName())
+                                    .set("ad_account_system_alias", accountSystem.getClientAlias())
+                                    .set("ad_account_system_bd_name", accountSystem.getBdName())
+                                    .set("update_time", currentTime);
+                            adAccountMapper.update(null, accountUpdateWrapper);
+                        } else {
+                            adAccountMapper.insert(adAccount);
+                        }
+                    }
+                }
+
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

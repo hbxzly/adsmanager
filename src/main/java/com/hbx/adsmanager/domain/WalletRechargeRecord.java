@@ -26,6 +26,8 @@ public class WalletRechargeRecord {
     private String mobile;
     @TableField("company_name")
     private String companyName;
+    @TableField("id")
+    private String id;
 
     public String getChangeType() {
         return changeType;
@@ -91,17 +93,26 @@ public class WalletRechargeRecord {
         this.companyName = companyName;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
-        return "RechargeRecord{" +
+        return "WalletRechargeRecord{" +
                 "changeType='" + changeType + '\'' +
                 ", actionType='" + actionType + '\'' +
-                ", usdAmount='" + usdAmount + '\'' +
+                ", usdAmount=" + usdAmount +
                 ", createTime=" + createTime +
                 ", changeDesc='" + changeDesc + '\'' +
                 ", nickName='" + nickName + '\'' +
                 ", mobile='" + mobile + '\'' +
                 ", companyName='" + companyName + '\'' +
+                ", id='" + id + '\'' +
                 '}';
     }
 }

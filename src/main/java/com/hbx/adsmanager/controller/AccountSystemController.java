@@ -9,6 +9,7 @@ import com.hbx.adsmanager.service.SeleniumService;
 import com.hbx.adsmanager.util.PageBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -91,6 +92,16 @@ public class AccountSystemController {
        accountSystemService.updateAccountSystemForSell(accountSystem);
         return "OK";
     }
+
+    @RequestMapping("updateCookie")
+    @ResponseBody
+    public String updateCookie(@RequestBody AccountSystem accountSystem){
+        String accountSystemCookie = seleniumService.getAccountSystemCookie(accountSystem);
+        accountCookieService.updateAccountCookie(accountSystem.getAccount(),accountSystemCookie);
+        return "OK";
+    }
+
+
 
 
 }

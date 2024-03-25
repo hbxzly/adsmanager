@@ -5,17 +5,17 @@ public class BrowserUtil {
     /**
      * 账号输入框
      */
-    public static String accountInput = "/html/body/lang/div/div/div/div/div[2]/div[1]/div[2]/form/div[1]/div/div/div/span/input";
+    public static String accountInput = "/html/body/div[1]/div/div/div/div[2]/div[1]/div[2]/form/div[1]/div/div[1]/div/span/input";
 
     /**
      * 密码输入框
      */
-    public static String passwordInput= "/html/body/lang/div/div/div/div/div[2]/div[1]/div[2]/form/div[2]/div/div/div/span/input";
+    public static String passwordInput= "/html/body/div[1]/div/div/div/div[2]/div[1]/div[2]/form/div[2]/div/div/div/span/input";
 
     /**
      * 登录按钮
      */
-    public static String loginBt = "/html/body/lang/div/div/div/div/div[2]/div[1]/div[2]/form/div[3]/div/div/div/button";
+    public static String loginBt = "/html/body/div[1]/div/div/div/div[2]/div[1]/div[2]/form/div[3]/div/div/div/button";
 
     /**
      * 首页充值按钮

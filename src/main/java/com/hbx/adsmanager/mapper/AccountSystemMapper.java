@@ -10,5 +10,10 @@ import java.util.List;
 @Mapper
 public interface AccountSystemMapper extends BaseMapper<AccountSystem>{
 
+    /**
+     * 根据后台名称统计数量
+     * @param clientName
+     * @return
+     */
     AccountSystem countAccountSystemAdAccount(@Param("clientName") String clientName);
 }

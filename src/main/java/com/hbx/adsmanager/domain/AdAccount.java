@@ -69,6 +69,9 @@ public class AdAccount {
     @TableField("note")
     private String note;
 
+    @TableField("open_account_company")
+    private String openAccountCompany;
+
     public String getNote() {
         return note;
     }
@@ -221,6 +224,14 @@ public class AdAccount {
         this.isSell = isSell;
     }
 
+    public String getOpenAccountCompany() {
+        return openAccountCompany;
+    }
+
+    public void setOpenAccountCompany(String openAccountCompany) {
+        this.openAccountCompany = openAccountCompany;
+    }
+
     @Override
     public String toString() {
         return "AdAccount{" +
@@ -243,6 +254,7 @@ public class AdAccount {
                 ", isSell='" + isSell + '\'' +
                 ", receiver='" + receiver + '\'' +
                 ", note='" + note + '\'' +
+                ", openAccountCompany='" + openAccountCompany + '\'' +
                 '}';
     }
 }

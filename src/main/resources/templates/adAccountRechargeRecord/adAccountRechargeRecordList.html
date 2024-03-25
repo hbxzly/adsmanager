@@ -97,11 +97,12 @@
 						plain: true,
 						iconCls: 'icon-user_add',
 						handler: function () {
+							console.log("你好");
 							var startTime = $('#startTime').datebox('getValue');
-							var accountSystem = $('#accountSystem').datebox('getValue');
+							var accountSystem = $('#accountSystem').textbox('getValue');
 							$.ajax({
 								type: "post",
-								url: "/adAccountRechargeRecord/addAdAccountRechargeRecord?startTime="+startTime+"&accountSystem"+accountSystem,
+								url: "/adAccountRechargeRecord/addAdAccountRechargeRecord?startTime="+startTime+"&accountSystem="+accountSystem,
 								cache: false,
 								contentType: false,
 								processData: false,

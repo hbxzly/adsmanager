@@ -45,16 +45,7 @@
 							}
 						}
 					},
-					{field:'rechargeStatus',title:'账户是否可充值',align:'center',
-						formatter: function (value){
-							if (value == "false") {
-								return '是';
-							}
-							if (value == "true") {
-								return '<span style="color:red">' + '否' + '</span>';
-							}
-						}
-					},
+					{field:'openAccountCompany',title:'开户主体',align:'center'},
 					{field:'adAccountSystem',title:'所属后台',align:'center'},
 					{field:'adAccountSystemAlias',title:'后台简称',align:'center'},
 					{field:'isSell',title:'是否卖出',align:'center',
@@ -455,7 +446,7 @@
 	</table>
 </div>
 
-<!-- 绑定BM窗口 -->
+<!-- 解绑BM窗口 -->
 <div id="unBindBmDialog" style="padding: 10px;">
 	绑定BMID：<input id="unBindBmId" class="easyui-textbox" name="bmId"/>
 	<table id="accountBmListTwo" >

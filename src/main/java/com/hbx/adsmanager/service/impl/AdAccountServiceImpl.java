@@ -147,7 +147,7 @@ public class AdAccountServiceImpl implements AdAccountService {
 
         AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
         String cookie = accountCookieService.queryCookie(system.getAccount());
-        String BIND_BM_POST_RD = "{\"bmId\": \""+bmId+"\",\"adAccountId\": \""+adAccountId+"\"}";
+        String BIND_BM_POST_RD = "{\"bmId\": \""+bmId+"\",\"adAccountNo\": \""+adAccountId+"\",\"authType\": \"1\"}";
         String s = CustomHttpClient.postRequest(SinoClickRequestUrl.BIND_BM_POST, cookie, BIND_BM_POST_RD);
         Map<String, String> map = JSON.parseObject(s, new TypeReference<HashMap<String, String>>() {});
         return map.get("code");

@@ -26,6 +26,13 @@ public class AdAccountController {
     @Autowired
     AccountSystemService accountSystemService;
 
+    /**
+     * 获取广告账户列表
+     * @param page
+     * @param rows
+     * @param adAccount
+     * @return
+     */
     @RequestMapping("getAdAccountList")
     @ResponseBody
     public Object getAdAccountList(@RequestParam(value = "page", defaultValue = "1")int page,
@@ -41,6 +48,11 @@ public class AdAccountController {
         return hashMap;
     }
 
+    /**
+     * 根据后台名称查找后台
+     * @param clientName
+     * @return
+     */
     @RequestMapping("findAccountSystemByClientName")
     @ResponseBody
     public String findAccountSystemByClientName(String clientName){
@@ -48,12 +60,29 @@ public class AdAccountController {
         return "后台余额："+accountSystem.getClientBalance()+"----------备注："+ StringUtil.isSellStr(accountSystem.getIsSell());
     }
 
+
+    /**
+     * 绑定BM
+     * @param accountSystem
+     * @param adAccountId
+     * @param bmId
+     * @return
+     * @throws InterruptedException
+     */
     @RequestMapping("bindBm")
     @ResponseBody
     public String bindBm(String accountSystem, String adAccountId, String bmId) throws InterruptedException {
         return adAccountService.bindBm(accountSystem, adAccountId, bmId);
     }
 
+    /**
+     * 解绑BM
+     * @param accountSystem
+     * @param adAccountId
+     * @param bmId
+     * @return
+     * @throws InterruptedException
+     */
     @RequestMapping("unBindBm")
     @ResponseBody
     public String unBindBm(String accountSystem, String adAccountId, String bmId) throws InterruptedException {

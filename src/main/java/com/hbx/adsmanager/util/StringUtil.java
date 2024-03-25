@@ -26,6 +26,11 @@ public class StringUtil {
         return str.trim().split("\\s+");
     }
 
+    /**
+     * 转化状态
+     * @param status
+     * @return
+     */
     public static int convertStatus(String status){
         if (status.equals("良好")){
             return 1;
@@ -33,6 +38,11 @@ public class StringUtil {
         return 0;
     }
 
+    /**
+     * 判断是否卖出
+     * @param isSell
+     * @return
+     */
     public static String isSellStr(String isSell){
         if (isSell !="" && isSell !=null &&isSell.equals("1")){
             return "卖出";
@@ -40,6 +50,11 @@ public class StringUtil {
         return "";
     }
 
+    /**
+     * 获取URL内信息
+     * @param url
+     * @return
+     */
     public static Map<String, String> extractValuesFromURL(String url) {
         Map<String, String> resultMap = new HashMap<>();
 
@@ -58,6 +73,12 @@ public class StringUtil {
         return resultMap;
     }
 
+    /**
+     * 获取URL内信息
+     * @param url
+     * @param parameter
+     * @return
+     */
     private static String extractValueFromURL(String url, String parameter) {
         int startIndex = url.indexOf(parameter);
         if (startIndex != -1) {
@@ -71,6 +92,11 @@ public class StringUtil {
         return null;
     }
 
+    /**
+     * 二维码字符串转化
+     * @param input
+     * @return
+     */
     public static String extractImageBase64(String input) {
         String pattern = "data:image\\/\\w+;base64,([\\w\\/+=]+)";
         Pattern regex = Pattern.compile(pattern);
@@ -83,6 +109,11 @@ public class StringUtil {
         return null;
     }
 
+    /**
+     * 移除字符串中的非数字字符
+     * @param cny
+     * @return
+     */
     public static String extractNumber(String cny){
         // 移除字符串中的非数字字符
         String numberString = cny.replaceAll("[^\\d.]", "");

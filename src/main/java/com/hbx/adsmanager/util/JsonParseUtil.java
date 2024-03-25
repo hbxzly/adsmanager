@@ -4,17 +4,23 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hbx.adsmanager.domain.AdAccount;
 import com.hbx.adsmanager.domain.WalletRechargeRecord;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class JsonParseUtil {
 
+    /**
+     * 获取钱包余额
+     * @param jsonData
+     * @return
+     */
     public static String getWalletBalance(String jsonData) {
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -28,6 +34,11 @@ public class JsonParseUtil {
         return null; // 在异常发生时返回null，或根据实际需求返回适当的默认值
     }
 
+    /**
+     * 格式化广告账户列表
+     * @param jsonData
+     * @return
+     */
     public static List<AdAccount> parseAdAccountList(String jsonData) {
         List<AdAccount> adAccountList = new ArrayList<>();
 
@@ -61,6 +72,11 @@ public class JsonParseUtil {
         return adAccountList;
     }
 
+    /**
+     * 格式化充值记录
+     * @param jsonData
+     * @return
+     */
     public static List<WalletRechargeRecord> parseRechargeRecordList(String jsonData) {
         List<WalletRechargeRecord> rechargeRecordList = new ArrayList<>();
 
@@ -96,7 +112,11 @@ public class JsonParseUtil {
         return rechargeRecordList;
     }
 
-
+    /**
+     * 格式化日期
+     * @param dateString
+     * @return
+     */
     public static Date parseDate(String dateString) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         try {
@@ -107,11 +127,54 @@ public class JsonParseUtil {
         return null;
     }
 
+    /**
+     * 格式化充值状态
+     * @param jsonData
+     * @return
+     * @throws IOException
+     */
     public static String paresRechargeStatus(String jsonData) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(jsonData);
         return jsonNode.get("result").get("status").asText();
     }
 
+
+    public static Map<String, Object> parseJSON(String jsonData) {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            JSONObject jsonObject = new JSONObject(jsonData);
+            parseJSONObject(jsonObject, "", resultMap);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultMap;
+    }
+
+    private static void parseJSONObject(JSONObject jsonObject, String prefix, Map<String, Object> resultMap) throws JSONException {
+        Iterator<String> keys = jsonObject.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            Object value = jsonObject.get(key);
+            resultMap.put(prefix + key, value);
+
+            if (value instanceof JSONObject) {
+                parseJSONObject((JSONObject) value, prefix + key + ".", resultMap);
+            } else if (value instanceof JSONArray) {
+                parseJSONArray((JSONArray) value, prefix + key + ".", resultMap);
+            }
+        }
+    }
+
+    private static void parseJSONArray(JSONArray jsonArray, String prefix, Map<String, Object> resultMap) throws JSONException {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            Object value = jsonArray.get(i);
+            if (value instanceof JSONObject) {
+                parseJSONObject((JSONObject) value, prefix, resultMap);
+            } else if (value instanceof JSONArray) {
+                parseJSONArray((JSONArray) value, prefix, resultMap);
+            }
+        }
+    }
 
 }

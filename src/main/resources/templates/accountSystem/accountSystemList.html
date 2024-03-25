@@ -401,6 +401,26 @@
 				});
 			});
 
+			$("#updateCookie").click(function (){
+				var selectRows = $("#dataList").datagrid("getSelections");
+				if (selectRows.length === 0) {
+					$.messager.alert("消息提醒", "请选择一个账户!", "warning");
+					return;
+				}
+				var accountSystem = selectRows[0];;
+				var jsonData = JSON.stringify(accountSystem);
+				$.ajax({
+					type: "POST",
+					url:"/accountSystem/updateCookie",
+					data: jsonData,
+					contentType: "application/json",
+					success: function(data){
+						$.messager.alert("消息提醒", "更新Cookie成功", "success");
+					}
+				});
+
+			});
+
 			$("#sell").click(function (){
 				var clientName = $("#edit_clientName").textbox("getValue");
 				$.ajax({
@@ -451,6 +471,8 @@
 					   data-options="iconCls:'icon-open',plain:true">打开后台</a>
 					<a id="closeChrome" href="javascript:;" class="easyui-linkbutton"
 					   data-options="iconCls:'icon-close',plain:true">关闭后台</a>
+					<a id="updateCookie" href="javascript:;" class="easyui-linkbutton"
+					   data-options="iconCls:'icon-update',plain:true">更新cookie</a>
 					<a id="updateAccountSystemBasicInfo" href="javascript:;" class="easyui-linkbutton"
 					   data-options="iconCls:'icon-basic-update',plain:true">更新基础信息</a>
 					<a id="updateAccountSystemAccountInfo" href="javascript:;" class="easyui-linkbutton"

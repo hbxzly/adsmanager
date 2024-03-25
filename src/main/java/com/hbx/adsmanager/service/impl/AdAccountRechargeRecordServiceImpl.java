@@ -14,13 +14,17 @@ import com.hbx.adsmanager.mapper.AdAccountRechargeRecordMapper;
 import com.hbx.adsmanager.service.AccountCookieService;
 import com.hbx.adsmanager.service.AdAccountRechargeRecordService;
 import com.hbx.adsmanager.util.CustomHttpClient;
+import com.hbx.adsmanager.util.JsonParseUtil;
 import com.hbx.adsmanager.util.PageBean;
 import com.hbx.adsmanager.util.SinoClickRequestUrl;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,66 +82,65 @@ public class AdAccountRechargeRecordServiceImpl implements AdAccountRechargeReco
 
         LocalDate endDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        SimpleDateFormat formatterDate = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String endDateFormat = endDate.format(formatter);
-        String requestData = null;
+       //请求体
+        String requestBody = null;
         try {
-            requestData = "{\"pageSize\": \"50\",\"pageNum\": \"1\",\"endDate\": \"" + endDateFormat + "\",\"startDate\": \"" + startTime + "\"}";
-            String tradeOrderStr = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_TRADE_ORDER_LIST_POST,
-                    accountCookieService.queryCookie(accountSystem.getAccount()), requestData);
-            Map<String, String> tradeOrderMap = JSON.parseObject(tradeOrderStr, new TypeReference<HashMap<String, String>>(){});
-            Map<String, String> tradeOrderMapResult = JSON.parseObject(tradeOrderMap.get("result"), new TypeReference<HashMap<String, String>>() {});
-            int total = Integer.parseInt(tradeOrderMapResult.get("total"));
+            requestBody = "{\"pageSize\": \"50\",\"pageNum\": \"1\",\"endDate\": \"" + endDateFormat + "\",\"startDate\": \"" + startTime + "\"}";
+            String cookie = accountCookieService.queryCookie(accountSystem.getAccount());
+            //订单列表
+            String tradeOrderList = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_TRADE_ORDER_LIST_POST,cookie, requestBody);
+            //转化订单列表为Map
+            Map<String, Object> tradeOrderMap = JsonParseUtil.parseJSON(tradeOrderList);
+            int total = Integer.parseInt(tradeOrderMap.get("result.total").toString());
             int page = total / 50 + (total % 50 != 0 ? 1 : 0);
             for (int i = 1; i < page + 1; i++) {
-                requestData = "{\"pageSize\": \"50\",\"pageNum\": \"" + i + "\",\"endDate\": \"" + endDateFormat + "\",\"startDate\": \"" + startTime + "\"}";
-                String pageTradeOrderStr = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_TRADE_ORDER_LIST_POST,
-                        accountCookieService.queryCookie(accountSystem.getAccount()), requestData);
-                Map<String, String> pageTradeOrderMap = JSON.parseObject(pageTradeOrderStr, new TypeReference<HashMap<String, String>>() {});
-                Map<String, String> pageTradeOrderMapResult = JSON.parseObject(pageTradeOrderMap.get("result"), new TypeReference<HashMap<String, String>>() {});
-                List<AdAccountRechargeRecordVo> adAccountRechargeRecordVoList = JSONArray.parseArray(pageTradeOrderMapResult.get("result"), AdAccountRechargeRecordVo.class);
-                for (AdAccountRechargeRecordVo adAccountRechargeRecordVo : adAccountRechargeRecordVoList) {
-                    requestData = "{\"tradeId\": \"" + adAccountRechargeRecordVo.getTradeId() + "\"}";
-                    String queryTradeOrderStr = CustomHttpClient.postRequest(SinoClickRequestUrl.QUERY_TRADE_ORDER_POST,
-                            accountCookieService.queryCookie(accountSystem.getAccount()), requestData);
-                    Map<String, String> queryTradeOrderMap = JSON.parseObject(queryTradeOrderStr, new TypeReference<HashMap<String, String>>() {});
-                    Map<String, String> queryTradeOrderMapResult = JSON.parseObject(queryTradeOrderMap.get("result"), new TypeReference<HashMap<String, String>>() {});
-                    Map<String, String> walletAmountMap = JSON.parseObject(queryTradeOrderMapResult.get("walletAmount"), new TypeReference<HashMap<String, String>>() {});
-                    Map<String, String> tradeSubAmountMap = JSON.parseObject(queryTradeOrderMapResult.get("tradeSubAmount"), new TypeReference<HashMap<String, String>>() {});
-                    AdAccountRechargeRecord adAccountRechargeRecord = new AdAccountRechargeRecord();
-                    adAccountRechargeRecord.setTradeId(adAccountRechargeRecordVo.getTradeId());
-                    adAccountRechargeRecord.setTid(adAccountRechargeRecordVo.getTid());
-                    adAccountRechargeRecord.setPayMethod(adAccountRechargeRecordVo.getPayMethod());
-                    adAccountRechargeRecord.setCreateTime(adAccountRechargeRecordVo.getCreateTime());
-                    if (adAccountRechargeRecordVo.getTradeStatusName().equals("支付成功")) {
-                        adAccountRechargeRecord.setPayTime(adAccountRechargeRecordVo.getPayTime());
-                    }
-                    adAccountRechargeRecord.setTradeStatusName(adAccountRechargeRecordVo.getTradeStatusName());
-                    adAccountRechargeRecord.setUsdAmount(adAccountRechargeRecordVo.getTradeAmount().getUsdAmount());
-                    adAccountRechargeRecord.setCnyAmount(adAccountRechargeRecordVo.getTradeAmount().getCnyAmount());
-                    adAccountRechargeRecord.setExchangeRate(queryTradeOrderMapResult.get("exchangeRate"));
-                    adAccountRechargeRecord.setWalletUsdAmount(Double.parseDouble(walletAmountMap.get("usdAmount")));
-                    adAccountRechargeRecord.setWalletCnyAmount(Double.parseDouble(walletAmountMap.get("cnyAmount")));
-                    adAccountRechargeRecord.setTradeSubUsdAmount(Double.parseDouble(tradeSubAmountMap.get("usdAmount")));
-                    adAccountRechargeRecord.setTradeSubCnyAmount(Double.parseDouble(tradeSubAmountMap.get("cnyAmount")));
-                    adAccountRechargeRecord.setTradeDetailTypeDesc(adAccountRechargeRecordVo.getTradeDetailList().get(0).getTradeDetailTypeDesc());
-                    adAccountRechargeRecord.setChannelId(adAccountRechargeRecordVo.getTradeDetailList().get(0).getChannelId());
-                    adAccountRechargeRecord.setChannelAccountId(adAccountRechargeRecordVo.getTradeDetailList().get(0).getChannelAccountId());
-                    adAccountRechargeRecord.setAccountSystem(accountSystem.getClientName());
-                    if (accountSystem.getIsSell() != "" && accountSystem.getIsSell() != null && accountSystem.getIsSell().equals("1")) {
-                        adAccountRechargeRecord.setAccountSystemIsSell("1");
-                    }
-                    if (!adAccountRechargeRecordVo.getTradeStatusName().equals("已取消")) {
-                        QueryWrapper<AdAccountRechargeRecord> adAccountRechargeRecordQueryWrapper = new QueryWrapper<>();
-                        adAccountRechargeRecordQueryWrapper.eq("tid",adAccountRechargeRecordVo.getTid());
-                        AdAccountRechargeRecord accountRechargeRecord = adAccountRechargeRecordMapper.selectOne(adAccountRechargeRecordQueryWrapper);
-                        if (accountRechargeRecord == null){
-                            adAccountRechargeRecordMapper.insert(adAccountRechargeRecord);
+                requestBody = "{\"pageSize\": \"50\",\"pageNum\": \"" + i + "\",\"endDate\": \"" + endDateFormat + "\",\"startDate\": \"" + startTime + "\"}";
+                tradeOrderList = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_TRADE_ORDER_LIST_POST, cookie, requestBody);
+                tradeOrderMap = JsonParseUtil.parseJSON(tradeOrderList);
+                org.json.JSONArray adAccountRechargeRecordList = (org.json.JSONArray) tradeOrderMap.get("result.result");
+                for (int j = 0; j < adAccountRechargeRecordList.length(); j++) {
+                    JSONObject adAccountRechargeRecordTemp = adAccountRechargeRecordList.getJSONObject(j);
+                    //一个订单多个账户充值处理
+                    org.json.JSONArray tradeDetailList = adAccountRechargeRecordTemp.getJSONArray("tradeDetailList");
+                    for (int k = 0; k < tradeDetailList.length(); k++) {
+                        //单账户充值细节处理
+                        Map<String, Object> tradeDetailMap = JsonParseUtil.parseJSON(tradeDetailList.getJSONObject(k).toString());
+                        AdAccountRechargeRecord adAccountRechargeRecord = new AdAccountRechargeRecord();
+                        adAccountRechargeRecord.setTid(adAccountRechargeRecordTemp.get("tid").toString());
+                        adAccountRechargeRecord.setTradeId(adAccountRechargeRecordTemp.get("tradeId").toString());
+                        adAccountRechargeRecord.setPayMethod(adAccountRechargeRecordTemp.get("payMethod").toString());
+                        adAccountRechargeRecord.setCreateTime(formatterDate.parse(adAccountRechargeRecordTemp.get("createTime").toString()));
+                        if (adAccountRechargeRecordTemp.get("tradeStatusName").equals("支付成功")){
+                            adAccountRechargeRecord.setPayTime(formatterDate.parse(adAccountRechargeRecordTemp.get("payTime").toString()));
+                        }
+                        adAccountRechargeRecord.setAccountSystem(accountSystem.getClientName());
+                        adAccountRechargeRecord.setAccountSystemIsSell(accountSystem.getIsSell());
+                        adAccountRechargeRecord.setChannelAccountId(tradeDetailMap.get("channelAccountId").toString());
+                        adAccountRechargeRecord.setTradeStatusName(adAccountRechargeRecordTemp.get("tradeStatusName").toString());
+                        adAccountRechargeRecord.setUsdAmount(Double.parseDouble(tradeDetailMap.get("tradeDetailAmount.usdAmount").toString()));
+                        adAccountRechargeRecord.setCnyAmount(Double.parseDouble(tradeDetailMap.get("tradeDetailAmount.cnyAmount").toString()));
+                        adAccountRechargeRecord.setTradeDetailTypeDesc(tradeDetailMap.get("tradeDetailTypeDesc").toString());
+                        adAccountRechargeRecord.setChannelId(tradeDetailMap.get("channelId").toString());
+                        if (accountSystem.getIsSell() != "" && accountSystem.getIsSell() != null && accountSystem.getIsSell().equals("1")) {
+                            adAccountRechargeRecord.setAccountSystemIsSell("1");
+                        }
+                        if (!adAccountRechargeRecordTemp.get("tradeStatusName").equals("已取消")) {
+                            QueryWrapper<AdAccountRechargeRecord> adAccountRechargeRecordQueryWrapper = new QueryWrapper<>();
+                            adAccountRechargeRecordQueryWrapper.eq("tid", adAccountRechargeRecordTemp.get("tid"));
+                            AdAccountRechargeRecord accountRechargeRecord = adAccountRechargeRecordMapper.selectOne(adAccountRechargeRecordQueryWrapper);
+                            if (accountRechargeRecord == null){
+                                adAccountRechargeRecordMapper.insert(adAccountRechargeRecord);
+                            }
                         }
                     }
+
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }

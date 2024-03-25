@@ -19,6 +19,7 @@
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
         <result column="ad_account_system_bd_name" property="adAccountSystemBdName" jdbcType="VARCHAR" />
         <result column="note" property="note" jdbcType="VARCHAR" />
+        <result column="open_account_company" property="openAccountCompany" jdbcType="VARCHAR" />
     </resultMap>
 
 
@@ -43,6 +44,9 @@
                 </if>
                 <if test="adAccount.accountStatus != '' and adAccount.accountStatus !=null">
                     and account_status = #{adAccount.accountStatus}
+                </if>
+                <if test="adAccount.openAccountCompany != '' and adAccount.openAccountCompany !=null">
+                    and open_accountc_company = #{openAccountCompany}
                 </if>
                 <if test="adAccount.adAccountSystemStatus != '' and adAccount.adAccountSystemStatus !=null">
                     and ad_account_system_status = #{adAccount.adAccountSystemStatus}

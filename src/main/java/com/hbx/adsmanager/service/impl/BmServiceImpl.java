@@ -31,7 +31,7 @@ public class BmServiceImpl implements BmService {
         System.out.println("getBmList");
         AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
         String cookie = accountCookieService.queryCookie(system.getAccount());
-        String GET_ACCOUNT_BM_LIST_RD = "{\"adAccountId\": \""+adAccountId+"\"}";
+        String GET_ACCOUNT_BM_LIST_RD = "{\"type\": \"1\",\"channelId\": \"1\",\"adAccountId\": \""+adAccountId+"\"}";
         String s = CustomHttpClient.postRequest(SinoClickRequestUrl.GET_ACCOUNT_BM_LIST_POST, cookie, GET_ACCOUNT_BM_LIST_RD);
         Map<String, String> map = JSON.parseObject(s, new TypeReference<HashMap<String, String>>() {});
         System.out.println("ceshi:"+map);

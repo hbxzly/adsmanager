@@ -29,10 +29,11 @@ public interface SeleniumService {
      * 账户充值
      * @param accountSystem 账户后台
      * @param id 账户id
-     * @param payment 付款方式
+     * @param payMethod 付款方式
      * @param amount 充值金额
+     * @param isUseWallet 是否用钱包金额
      */
-    void adAccountRecharge(String accountSystem, String id, String payment, String amount);
+    void adAccountRecharge(String accountSystem, String id, String payMethod, String amount, String isUseWallet);
 
     /**
      * 保存充值截图
@@ -42,15 +43,6 @@ public interface SeleniumService {
      * @param amount 充值金额
      */
     void adAccountRechargeScreenshot(String accountSystem, String id, String payment, String amount);
-
-    /**
-     * 用钱包余额充值
-     * @param accountSystem 账户后台
-     * @param id 账户id
-     * @param payment 付款方式
-     * @param amount 充值金额
-     */
-    void adAccountRechargeByWallet(String accountSystem, String id, String payment, String amount);
 
     /**
      * 获取账户cookie

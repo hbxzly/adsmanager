@@ -48,11 +48,6 @@ public class RechargeQRCodeServiceImpl implements RechargeQRCodeService {
     }
 
     @Override
-    public IPage<RechargeQRCode> getRechargeQRCodePage(IPage<RechargeQRCode> page) {
-        return rechargeQRCodeMapper.selectPage(page, null);
-    }
-
-    @Override
     public String checkRechargeStatus(String tradeTid) throws InterruptedException {
 
         String cookie = getCookieByTradeId(tradeTid);

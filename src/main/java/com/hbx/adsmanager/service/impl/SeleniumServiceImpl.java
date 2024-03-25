@@ -60,8 +60,10 @@ public class SeleniumServiceImpl implements SeleniumService {
             //option.addArguments("no-sandbox");//禁用沙盒
             //option.addArguments("--headless");//无头浏览器，不打开窗口
             //通过ChromeOptions的setExperimentalOption方法，传下面两个参数来禁止掉谷歌受自动化控制的信息栏
-            option.setExperimentalOption("useAutomationExtension", false);
-            option.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+            option.setExperimentalOption("useAutomationExtension", false);// 禁用自动填充密码
+            option.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));//不提示被控制
+
+
 
             // 创建DesiredCapabilities对象，设置性能日志选项
             DesiredCapabilities capabilities = DesiredCapabilities.chrome();
@@ -142,12 +144,15 @@ public class SeleniumServiceImpl implements SeleniumService {
     /**
      * 账户充值
      *
-     * @param accountSystem
-     * @param id
-     * @param amount
+     * @param accountSystem 账户后台
+     * @param id            账户id
+     * @param payMethod       付款方式
+     * @param amount        充值金额
+     * @param isUseWallet  是否用钱包金额
      */
+
     @Override
-    public void adAccountRecharge(String accountSystem, String id, String payMethod, String amount) {
+    public void adAccountRecharge(String accountSystem, String id, String payMethod, String amount, String isUseWallet) {
         String cookieStr = "";
         try {
             AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
@@ -162,21 +167,43 @@ public class SeleniumServiceImpl implements SeleniumService {
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.clientPageRechargeBt)));
 //            Thread.sleep(500);
             driver.get("https://business.sinoclick.com/client/facebook/accountList");
+            //批量充值
             webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/section/section/section/main/section/section/div[2]/div[3]/button/span")))
-                            .click();
-            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[1]/div/label[2]/span[2]")))
-                            .click();
+                    .click();
+            Thread.sleep(2000);
+            /*//表格录入
+            webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[6]/div/div[2]/div/div/div[2]/div[1]/div/label[2]")))
+                    .click();*/
+            // 使用JavaScript模拟点击
+            String script = "var element = document.elementFromPoint(1470, 90); element.click();";
+            ((JavascriptExecutor) driver).executeScript(script);
+            //输入账号__金额
             webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/form/div[2]/div[1]/div[2]/div/div/textarea")))
-                            .sendKeys(id+" "+amount);
+                    .sendKeys(id+" "+amount);
+            //验证账户
             webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/form/div[3]/div/div/div/button/span")))
-                            .click();
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div/form/div[3]/div/div/div/button/span")))
-                            .click();
+                    .click();
+            Thread.sleep(5000);
+            //去支付
+            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div/form/div[3]/div/div/div/button/span")))
+                    .click();
+            //是否使用钱包
+            if (isUseWallet.equals("1")){
+                //勾选钱包付款
+                webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div[2]/div[2]/section/section[2]/section[1]/div/div[3]/label/span/input")))
+                        .click();
+            }
+
+
+            //微信支付
             if (payMethod.equals("2")) {
+                //微信支付按钮
                 WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.weiXinPay));
                 payMethodBt.click();
-                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
-                goPayBt.click();
+                //去支付
+//                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
+//                goPayBt.click();
+                //二维码
                 webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
                 WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
                 String cny = StringUtil.extractNumber(element.getText());
@@ -207,11 +234,16 @@ public class SeleniumServiceImpl implements SeleniumService {
 
 //                closeChrome();
             }
+            //支付宝支付
             if (payMethod.equals("1")) {
+
+                //支付宝按钮
                 WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.alipay));
                 payMethodBt.click();
-                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
-                goPayBt.click();
+                //去支付
+//                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
+//                goPayBt.click();
+                //二维码
                 webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
                 WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
                 String cny = StringUtil.extractNumber(element.getText());
@@ -353,91 +385,7 @@ public class SeleniumServiceImpl implements SeleniumService {
         }
     }
 
-    @Override
-    public void adAccountRechargeByWallet(String accountSystem, String id, String payment, String amount) {
-        String cookieStr = "";
-        try {
-            AccountSystem system = accountSystemService.queryAccountSystemByClientName(accountSystem);
-            loginAccountSystem(system);
-            Set<Cookie> cookies = driver.manage().getCookies();
-            for (Cookie cookie : cookies) {
-                cookieStr = cookieStr + cookie.getName() + "=" + cookie.getValue() + ";";
-            }
-            accountCookieService.updateAccountCookie(system.getAccount(),cookieStr);
-            WebDriverWait webDriverWait = new WebDriverWait(driver, 20, 1);
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath(BrowserUtil.clientPageRechargeBt)));
-//            Thread.sleep(500);
-            driver.get("https://business.sinoclick.com/client/facebook/accountList");
-            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/section/section/section/main/section/section/div[2]/div[3]/button/span")))
-                    .click();
-            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[1]/div/label[2]/span[2]")))
-                    .click();
-            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/form/div[2]/div[1]/div[2]/div/div/textarea")))
-                    .sendKeys(id+" "+amount);
-            webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/form/div[3]/div/div/div/button/span")))
-                    .click();
-            webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[5]/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div/form/div[3]/div/div/div/button/span")))
-                    .click();
-            if (payment.equals("2")) {
-                WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.weiXinPay));
-                payMethodBt.click();
-                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
-                goPayBt.click();
-                webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
-                WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
-                String cny = StringUtil.extractNumber(element.getText());
-                String currentUrl = driver.getCurrentUrl();
-                Map<String, String> urlMap = StringUtil.extractValuesFromURL(currentUrl);
-                WebElement QRCode = driver.findElement(By.xpath(BrowserUtil.QRCode));
-                String src = QRCode.getAttribute("src");
-                String base64 = StringUtil.extractImageBase64(src);
-                String screenshotDirectory = "src/main/resources/static/screenshot";
-                File screenshotDir = new File(screenshotDirectory);
 
-                if (!screenshotDir.exists()) {
-                    screenshotDir.mkdirs();
-                }
-
-                File destinationFile = new File(screenshotDir, urlMap.get("tradeTid")+".png");
-                RechargeQRCode rechargeQRCode = new RechargeQRCode(urlMap.get("tradeTid"),urlMap.get("tradeOrderId"),urlMap.get("payMethod"),base64,id,accountSystem,new Date(),destinationFile.getName(),amount,cny,null);
-                rechargeQRCodeService.saveRechargeQRCode(rechargeQRCode);
-
-
-//                closeChrome();
-            }
-            if (payment.equals("1")) {
-                WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.alipay));
-                payMethodBt.click();
-                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
-                goPayBt.click();
-                webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
-                WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
-                String cny = StringUtil.extractNumber(element.getText());
-                String currentUrl = driver.getCurrentUrl();
-                Map<String, String> urlMap = StringUtil.extractValuesFromURL(currentUrl);
-                WebElement QRCode = driver.findElement(By.xpath(BrowserUtil.QRCode));
-                String src = QRCode.getAttribute("src");
-                String base64 = StringUtil.extractImageBase64(src);
-
-                String screenshotDirectory = "src/main/resources/static/screenshot";
-                File screenshotDir = new File(screenshotDirectory);
-
-                if (!screenshotDir.exists()) {
-                    screenshotDir.mkdirs();
-                }
-
-                File destinationFile = new File(screenshotDir, urlMap.get("tradeTid")+".png");
-                RechargeQRCode rechargeQRCode = new RechargeQRCode(urlMap.get("tradeTid"),urlMap.get("tradeOrderId"),urlMap.get("payMethod"),base64,id,accountSystem,new Date(),destinationFile.getName(),amount,cny,null);
-                rechargeQRCodeService.saveRechargeQRCode(rechargeQRCode);
-
-//                closeChrome();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     /**
      * 获取账户cookie（不显示页面）
