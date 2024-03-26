@@ -197,7 +197,7 @@ public class SeleniumServiceImpl implements SeleniumService {
             //微信支付
             if (payMethod.equals("2")) {
                 //微信支付按钮
-                WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.weiXinPay));
+                WebElement payMethodBt = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.walletPay)));
                 payMethodBt.click();
                 //去支付
                 WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
@@ -237,7 +237,7 @@ public class SeleniumServiceImpl implements SeleniumService {
             if (payMethod.equals("1")) {
 
                 //支付宝按钮
-                WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.alipay));
+                WebElement payMethodBt = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.alipay)));
                 payMethodBt.click();
                 //去支付
                 WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));

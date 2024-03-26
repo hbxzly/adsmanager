@@ -45,12 +45,12 @@ public class BrowserUtil {
     /**
      * 微信充值方式
      */
-    public static String weiXinPay = "/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[2]/label[2]";
+    public static String weiXinPay = "/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[2]/label[2]/span[1]";
 
     /**
      * 支付宝充值方式
      */
-    public static String alipay = "/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[2]/label[3]";
+    public static String alipay = "/html/body/div[1]/div/section/section/section/main/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[2]/label[3]/span[1]";
 
     /**
      * 充值二维码

@@ -97,11 +97,11 @@
             <if test="adAccountSystemStatus != '' and adAccountSystemStatus !=null">
                 and ad_account_system_status = #{adAccountSystemStatus}
             </if>
-            <if test="adAccount.adAccountName != '' and adAccount.adAccountName !=null">
-                and ad_account_name like  "%"#{adAccount.adAccountName}"%"
+            <if test="adAccountName != '' and adAccountName !=null">
+                and ad_account_name like  "%"#{adAccountName}"%"
             </if>
-            <if test="adAccount.openAccountCompany != '' and adAccount.openAccountCompany !=null">
-                and open_account_company like  "%"#{adAccount.openAccountCompany}"%"
+            <if test="openAccountCompany != '' and openAccountCompany !=null">
+                and open_account_company like  "%"#{openAccountCompany}"%"
             </if>
             <if test="balance > 0">
                 and balance> #{balance}
@@ -184,6 +184,12 @@
             </if>
             <if test="accountStatus != '' and accountStatus !=null">
                 and account_status = #{accountStatus}
+            </if>
+            <if test="adAccountName != '' and adAccountName !=null">
+                and ad_account_name like  "%"#{adAccountName}"%"
+            </if>
+            <if test="openAccountCompany != '' and openAccountCompany !=null">
+                and open_account_company like  "%"#{openAccountCompany}"%"
             </if>
             <if test="adAccountSystemStatus != '' and adAccountSystemStatus !=null">
                 and ad_account_system_status = #{adAccountSystemStatus}
