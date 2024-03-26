@@ -46,10 +46,10 @@
                     and account_status = #{adAccount.accountStatus}
                 </if>
                 <if test="adAccount.adAccountName != '' and adAccount.adAccountName !=null">
-                    and ad_account_name = #{adAccount.adAccountName}
+                    and ad_account_name like  "%"#{adAccount.adAccountName}"%"
                 </if>
                 <if test="adAccount.openAccountCompany != '' and adAccount.openAccountCompany !=null">
-                    and open_accountc_company = #{openAccountCompany}
+                    and open_account_company like  "%"#{adAccount.openAccountCompany}"%"
                 </if>
                 <if test="adAccount.adAccountSystemStatus != '' and adAccount.adAccountSystemStatus !=null">
                     and ad_account_system_status = #{adAccount.adAccountSystemStatus}
@@ -97,6 +97,12 @@
             <if test="adAccountSystemStatus != '' and adAccountSystemStatus !=null">
                 and ad_account_system_status = #{adAccountSystemStatus}
             </if>
+            <if test="adAccount.adAccountName != '' and adAccount.adAccountName !=null">
+                and ad_account_name like  "%"#{adAccount.adAccountName}"%"
+            </if>
+            <if test="adAccount.openAccountCompany != '' and adAccount.openAccountCompany !=null">
+                and open_account_company like  "%"#{adAccount.openAccountCompany}"%"
+            </if>
             <if test="balance > 0">
                 and balance> #{balance}
             </if>
@@ -132,6 +138,12 @@
                         and ad_account_system like concat('%', #{adAccount.adAccountSystem}, '%')
                     </otherwise>
                 </choose>
+            </if>
+            <if test="adAccount.adAccountName != '' and adAccount.adAccountName !=null">
+                and ad_account_name like  "%"#{adAccount.adAccountName}"%"
+            </if>
+            <if test="adAccount.openAccountCompany != '' and adAccount.openAccountCompany !=null">
+                and open_account_company like  "%"#{adAccount.openAccountCompany}"%"
             </if>
             <if test="adAccount.accountStatus != '' and adAccount.accountStatus !=null">
                 and account_status = #{adAccount.accountStatus}

@@ -150,7 +150,6 @@ public class SeleniumServiceImpl implements SeleniumService {
      * @param amount        充值金额
      * @param isUseWallet  是否用钱包金额
      */
-
     @Override
     public void adAccountRecharge(String accountSystem, String id, String payMethod, String amount, String isUseWallet) {
         String cookieStr = "";
@@ -201,8 +200,8 @@ public class SeleniumServiceImpl implements SeleniumService {
                 WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.weiXinPay));
                 payMethodBt.click();
                 //去支付
-//                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
-//                goPayBt.click();
+                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
+                goPayBt.click();
                 //二维码
                 webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
                 WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
@@ -241,8 +240,8 @@ public class SeleniumServiceImpl implements SeleniumService {
                 WebElement payMethodBt = driver.findElement(By.xpath(BrowserUtil.alipay));
                 payMethodBt.click();
                 //去支付
-//                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
-//                goPayBt.click();
+                WebElement goPayBt = driver.findElement(By.xpath(BrowserUtil.goPayBt));
+                goPayBt.click();
                 //二维码
                 webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(BrowserUtil.QRCode)));
                 WebElement element = driver.findElement(By.xpath(BrowserUtil.rechargeCNY));
@@ -384,8 +383,6 @@ public class SeleniumServiceImpl implements SeleniumService {
             e.printStackTrace();
         }
     }
-
-
 
     /**
      * 获取账户cookie（不显示页面）
