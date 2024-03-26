@@ -55,7 +55,7 @@
 							}
 						}
 					},
-					{field:'adAccountSystemStatus',title:'后台状态',align:'center',
+					{field:'adAccountSystemStatus',title:'后台状态',align:'center',hidden:true,
 						formatter: function (value){
 							if (value == 1) {
 								return '优秀';
@@ -349,6 +349,8 @@
 					adAccountSystem: $('#search_adAccountSystem').val().trim(),
 					adAccountSystemBdName: $('#search_adAccountSystemBdName').val().trim(),
 					balance: $('#search_balance').val().trim(),
+					adAccountName: $('#search_adAccountName').val().trim(),
+					openAccountCompany: $('#search_openAccountCompany').val().trim(),
 					spendAmount: $('#search_spendAmount').val().trim(),
 					accountStatus: $('#search_accountStatus').combobox("getValue").trim(),
 					clientStatus: $('#search_clientStatus').combobox("getValue").trim(),
@@ -361,6 +363,8 @@
 				$("#search_adAccountId").textbox("setValue","");
 				$("#search_adAccountSystem").textbox("setValue","");
 				$("#search_adAccountSystemBdName").textbox("setValue","");
+				$("#search_adAccountName").textbox("setValue","");
+				$("#search_openAccountCompany").textbox("setValue","");
 				$("#search_balance").textbox("setValue","0");
 				$("#search_spendAmount").textbox("setValue","0");
 				$("#search_accountStatus").combobox("setValue","");
@@ -391,20 +395,18 @@
 								 data-options="iconCls:'icon-bind',plain:true">绑定BM</a>
 					<a id="unBindBm" href="javascript:;" class="easyui-linkbutton"
 					   data-options="iconCls:'icon-unbind',plain:true">解绑BM</a></div>
-	<div style="float: left;" class="datagrid-btn-separator"></div>
-	<div style="float: left;"><a id="loginAccountSystem" href="javascript:;" class="easyui-linkbutton"
+	<a id="loginAccountSystem" href="javascript:;" class="easyui-linkbutton"
 								 data-options="iconCls:'icon-open',plain:true">打开后台</a>
 							  <a id="closeChrome" href="javascript:;" class="easyui-linkbutton"
-								 data-options="iconCls:'icon-close',plain:true">关闭后台</a></div>
-	<div style="float: left;" class="datagrid-btn-separator"></div>
-	<div style="float: left;"><a id="recharge" href="javascript:;" class="easyui-linkbutton"
+								 data-options="iconCls:'icon-close',plain:true">关闭后台</a>
+	<a id="recharge" href="javascript:;" class="easyui-linkbutton"
 								 data-options="iconCls:'icon-recharge',plain:true">充值</a>
 								<a id="updateAdAccount" href="javascript:;" class="easyui-linkbutton"
-								 data-options="iconCls:'icon-update',plain:true">更新账户</a></div>
-	<div style="float: left;" class="datagrid-btn-separator"></div>
-	<div style="margin-left: 10px;margin-top:4px;">
+								 data-options="iconCls:'icon-update',plain:true">更新账户</a>
 		账户ID：<input id="search_adAccountId" class="easyui-textbox" name="search_adAccountId"/>
+		账户名：<input id="search_adAccountName" class="easyui-textbox" name="search_adAccountName" style="width:70px;"/>
 		后台：<input id="search_adAccountSystem" class="easyui-textbox" name="search_adAccountSystem"/>
+		开户主体：<input id="search_openAccountCompany" class="easyui-textbox" name="search_openAccountCompany"/>
 		商务：<input id="search_adAccountSystemBdName" class="easyui-textbox" name="search_adAccountSystemBdName" style="width:70px;"/>
 		余额大于：<input id="search_balance" class="easyui-textbox" name="search_balance" value="0" style="width:70px;"/>
 		消费金额大于：<input id="search_spendAmount" class="easyui-textbox" name="search_spendAmount" value="0" style="width:70px;"/>
@@ -412,20 +414,19 @@
 			<option value="">--</option>
 			<option value="1">正常</option>
 			<option value="2">被封</option>
-		</select>
+		</select><!--
 		后台状态：<select id="search_clientStatus" class="easyui-combobox"  name="search_clientStatus" style="width:70px; vertical-align: middle;">
-			<option value="">--</option>
+			<option value="">&#45;&#45;</option>
 			<option value="1">优秀</option>
 			<option value="2">良好</option>
 			<option value="3">限开户</option>
 			<option value="4">限充值</option>
 			<option value="5">清零50%</option>
-		</select>
+		</select>-->
 		备注：<input id="search_note" class="easyui-textbox" name="search_note" style="width:70px;"/>
 		<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
 		<a id="clean-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-clear',plain:true">清除</a>
 		<a id="updateAccountSystemCookie" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-update',plain:true">更新后台cookie</a>
-	</div>
 </div>
 <!-- 充值窗口 -->
 <div id="rechargeDialog" style="padding: 10px">

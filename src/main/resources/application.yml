@@ -1,15 +1,15 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-#    url: jdbc:mysql://192.168.2.105:3306/ads?setUnicode=true&characterEncoding=utf8&useAffectedRows=true&useSSL=false&zeroDateTimeBehavior=convertToNull
-#    username: root
-#    password: 123
+    url: jdbc:mysql://192.168.2.105:3306/ads?setUnicode=true&characterEncoding=utf8&useAffectedRows=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: 123
 #    url: jdbc:mysql://207.148.97.251:3306/ads?setUnicode=true&characterEncoding=utf8&useAffectedRows=true&useSSL=false&zeroDateTimeBehavior=convertToNull
 #    username: ads
 #    password: kCTAAzAiHFDRaWwh
-    url: jdbc:mysql://127.0.0.1:3306/ads?setUnicode=true&characterEncoding=utf8&useAffectedRows=true&useSSL=false&zeroDateTimeBehavior=convertToNull
-    username: root
-    password: 1234
+#    url: jdbc:mysql://127.0.0.1:3306/ads?setUnicode=true&characterEncoding=utf8&useAffectedRows=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+#    username: root
+#    password: 1234
 
 mybatis-plus:
   configuration:

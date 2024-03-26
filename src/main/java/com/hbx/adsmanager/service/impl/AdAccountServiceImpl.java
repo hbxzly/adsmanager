@@ -63,6 +63,8 @@ public class AdAccountServiceImpl implements AdAccountService {
             paramMap.put("adAccountSystem",adAccount.getAdAccountSystem());
             paramMap.put("adAccountSystemBdName",adAccount.getAdAccountSystemBdName());
             paramMap.put("balance",adAccount.getBalance());
+            paramMap.put("openAccountCompany",adAccount.getOpenAccountCompany());
+            paramMap.put("adAccountName",adAccount.getAdAccountName());
             paramMap.put("spendAmount",adAccount.getSpendAmount());
             paramMap.put("accountStatus",adAccount.getAccountStatus());
             paramMap.put("adAccountSystemStatus",adAccount.getAdAccountSystemStatus());

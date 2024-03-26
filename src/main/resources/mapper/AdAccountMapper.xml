@@ -45,6 +45,9 @@
                 <if test="adAccount.accountStatus != '' and adAccount.accountStatus !=null">
                     and account_status = #{adAccount.accountStatus}
                 </if>
+                <if test="adAccount.adAccountName != '' and adAccount.adAccountName !=null">
+                    and ad_account_name = #{adAccount.adAccountName}
+                </if>
                 <if test="adAccount.openAccountCompany != '' and adAccount.openAccountCompany !=null">
                     and open_accountc_company = #{openAccountCompany}
                 </if>

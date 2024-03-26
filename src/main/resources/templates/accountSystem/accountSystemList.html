@@ -41,7 +41,7 @@
 						{field: 'spendAmount', title: '7天消耗',align:'center'},
 						{field: 'totalCount', title: '总账户数',align:'center'},
 						{field: 'activeCount', title: '活跃账户数',align:'center'},
-						{field: 'clientStatus', title: '状态',align:'center',
+						{field: 'clientStatus', title: '状态',align:'center',hidden:true,
 							formatter: function (value) {
 								if (value == 1) {
 									return '优秀';
@@ -464,10 +464,9 @@
 </table>
 <!-- 工具栏 -->
 <div id="toolbar">
-		<div  style="float: left;"><a id="add" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
-							<a id="edit" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">修改</a></div>
-		<div  style="float: left;" class="datagrid-btn-separator"></div>
-	<div style="float: left;"><a id="loginAccountSystem" href="javascript:;" class="easyui-linkbutton"
+		<a id="add" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+							<a id="edit" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">修改</a>
+	<a id="loginAccountSystem" href="javascript:;" class="easyui-linkbutton"
 					   data-options="iconCls:'icon-open',plain:true">打开后台</a>
 					<a id="closeChrome" href="javascript:;" class="easyui-linkbutton"
 					   data-options="iconCls:'icon-close',plain:true">关闭后台</a>
@@ -476,8 +475,7 @@
 					<a id="updateAccountSystemBasicInfo" href="javascript:;" class="easyui-linkbutton"
 					   data-options="iconCls:'icon-basic-update',plain:true">更新基础信息</a>
 					<a id="updateAccountSystemAccountInfo" href="javascript:;" class="easyui-linkbutton"
-					   data-options="iconCls:'icon-update',plain:true">更新账户信息</a></div>
-	<div style="float: left;" class="datagrid-btn-separator"></div>
+					   data-options="iconCls:'icon-update',plain:true">更新账户信息</a>
 		后台名称：<input id="search_clientName" class="easyui-textbox" name="search_clientName" />
 		账号：<input id="search_account" class="easyui-textbox" name="search_account" />
 		商务：<input id="search_bdName" class="easyui-textbox" name="search_bdName" style="width:60px;"/>
@@ -493,7 +491,6 @@
 		</select>
 		<a id="search-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
 		<a id="clean-btn" href="javascript:;" class="easyui-linkbutton" data-options="iconCls:'icon-clear',plain:true">清除</a>
-	</div>
 </div>
 
 <!-- 添加窗口 -->
